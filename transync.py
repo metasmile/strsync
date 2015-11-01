@@ -19,6 +19,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 # configure arguments
+__LANG_SEP__ = '-'
 __DIR_SUFFIX__ = ".lproj"
 __FILE_SUFFIX__ = ".strings"
 __RESOURCE_PATH__ = expanduser(args['target path'])
@@ -63,8 +64,33 @@ else:
     cfile.close()
 print '[i] complete. Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
 
+# methods
+def supported_lang(code):
+    alias = [ms for ms, ios in __MS_CODE_ALIASES__.items() if code in ios]
+    # check es-{Custom defined alias}
+    if len(alias)==1:
+        return alias[0]
+    # check es-MX
+    elif code in __MS_SUPPORTED_CODES__:
+        return code
+    # check es
+    elif code.split(__LANG_SEP__)[0] in __MS_SUPPORTED_CODES__:
+        return code.split(__LANG_SEP__)[0]
+    else:
+        return None
+
+def translate_ms(strs, to):
+    is_supported = supported_lang(to)
+    return [r['TranslatedText'] for r in trans.translate_array(strs, to)] if is_supported else strs
+
 def strings_obj_from_file(file):
     return localizable.parse_strings(filename=file)
+
+def merge_two_dicts(x, y):
+    '''Given two dicts, merge them into a new dict as a shallow copy.'''
+    z = x.copy()
+    z.update(y)
+    return z
 
 base_dict = None
 translated_dict = {}
@@ -85,7 +111,7 @@ if not base_dict:
 for dir, subdirs, files in walked:
     if dir.endswith((__DIR_SUFFIX__)):
         lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
-        if lc.find('_'): lc = lc.replace('_','-')
+        if lc.find('_'): lc = lc.replace('_', __LANG_SEP__)
 
         if lc in __EXCLUDING_LANGS__:
             continue
@@ -115,17 +141,18 @@ for dir, subdirs, files in walked:
             removing_keys = list(set(target_keys) - set(base_keys))
             existing_keys = list(set(base_keys) - set(adding_keys) - set(removing_keys))
 
-            for k in adding_keys:
-                i = base_keys.index(k)
-                o = base_content[i]
-                if i<len(target_content):
-                    target_content.insert(i, o)
-                else:
-                    target_content.append(o)
+            # print translate_ms(['man', 'woman'], supported_lang('zh-Hans'))
 
-                print base_content[i]
+            updated_content = []
+            for item in base_content:
+                #new added
+                # updated_content.append({
+                #     'key':item['key']
+                #     'value': if item['key'] in target_keys
+                # })
+                continue
 
-            # print lc, adding_keys, removing_keys
+            print lc, adding_keys, removing_keys
 
         #add - file
         for added_file in added_files:
