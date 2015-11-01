@@ -16,6 +16,7 @@ sys.setdefaultencoding('utf-8')
 __RESOURCE_PATH__ = expanduser(args['target path'])
 __BASE_LANG__ = "Base"
 __DIR_SUFFIX__ = ".lproj"
+__FILE_SUFFIX__ = ".strings"
 
 # Base.lproj key value
 
@@ -35,6 +36,8 @@ for dir, subdirs, files in walked:
 
 for dir, subdirs, files in walked:
     if dir.endswith((__DIR_SUFFIX__)):
+        files = filter(lambda f: f.endswith(__FILE_SUFFIX__), files)
+        
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
         existing_file = list(set(files) - set(added_files))
@@ -43,7 +46,8 @@ for dir, subdirs, files in walked:
 
         #remove
         for removed_file in removed_files:
-            os.rename(removed_file, removed_file+'.deleted')
+            print removed_file
+            # os.rename(removed_file, removed_file+'.deleted')
 
         #update
         for ext_file in existing_file:
