@@ -10,14 +10,15 @@ Automatically translate and synchronize '.strings' files from defined base langu
 pip install transync
 ```
 
-### To use Microsoft Translation API
+### About Microsoft Translation API
 
-You should do several requirements.
+This tool using [Microsoft-Translator-Python-API, wrote by OpenLabs](https://github.com/openlabs/Microsoft-Translator-Python-API).
+
+So you should do several requirements.
 
 #### Getting your client id/secret id
 
-To register your application with Azure DataMarket, visit https://datamarket.azure.com/developer/applications/ using the LiveID credentials from step 1, and click on “Register”. In the “Register your application” dialog box, you can define your own Client ID and Name. The redirect URI is not used for the Microsoft Translator API. However, the redirect URI field is a mandatory field, and you must provide a URI to obtain the access code. A description is optional.
-Take a note of the client ID and the client secret value.
+Try accordance with [this explanation](https://github.com/openlabs/Microsoft-Translator-Python-API#registering-your-application)
 
 #### Update python SSL packages
 
