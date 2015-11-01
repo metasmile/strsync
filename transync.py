@@ -1,10 +1,19 @@
+
+# transync - Automatically translate and synchronize .strings files from defined base language.
+# Copyright (c) 2015 Xoropsax cyrano905@gmail.com (github.com/metasmile)
+
 import localizable
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs
 from os.path import expanduser
 
+parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
+parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='.', nargs='?')
+args = vars(parser.parse_args())
+
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
+__RESOURCE_PATH__ = expanduser(args['target path'])
 __BASE_LANG__ = "Base"
 __DIR_SUFFIX__ = ".lproj"
 
@@ -17,7 +26,7 @@ base_dict = {}
 translated_dict = {}
 
 # Get Base Language Specs
-walked = list(os.walk(expanduser('./'), topdown=True))
+walked = list(os.walk(expanduser(__RESOURCE_PATH__), topdown=True))
 
 for dir, subdirs, files in walked:
     if os.path.basename(dir)==__BASE_LANG__+__DIR_SUFFIX__:
