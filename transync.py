@@ -37,20 +37,28 @@ for dir, subdirs, files in walked:
     if dir.endswith((__DIR_SUFFIX__)):
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
+        existing_file = list(set(files) - set(added_files))
 
         print "Added:", added_files, "Removed:", removed_files
 
+        #remove
         for removed_file in removed_files:
             os.rename(removed_file, removed_file+'.deleted')
 
+        #update
+        for ext_file in existing_file:
+            localizable.parse_strings(filename=os.path.join(dir, ext_file))
+            print ext_file
+
+        #add
         for added_file in added_files:
-            print os.path.join(dir, new_file)
+            base_contents = base_dict[added_file]
+            print os.path.join(dir, added_file)
 
-strings = localizable.parse_strings(filename='ar.lproj/Localizable.strings')
-
-values = ''
-for k in strings:
-    values += "\"{0}\" = \"{1}\";\n".format(k['key'], k['value'])
+# strings = localizable.parse_strings(filename='ar.lproj/Localizable.strings')
+# values = ''
+# for k in strings:
+#     values += "\"{0}\" = \"{1}\";\n".format(k['key'], k['value'])
 
 # path = os.path.join(expanduser('./'), 'ar.lproj/Localizable.strings')
 # f = codecs.open(path, "w", "utf-8")
