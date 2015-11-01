@@ -92,32 +92,17 @@ def merge_two_dicts(x, y):
     z.update(y)
     return z
 
-base_dict = None
-translated_dict = {}
-
-# Get Base Language Specs
-walked = list(os.walk(__RESOURCE_PATH__, topdown=True))
-
-for dir, subdirs, files in walked:
-    if os.path.basename(dir)==__BASE_RESOUCE_DIR__:
-        base_dict = {}
-        for _file in files:
-            base_dict[_file] = strings_obj_from_file(os.path.join(dir, _file))
-
-if not base_dict:
-    print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__)
-    sys.exit(0)
-
 # core function
-def update_or_translate(target_file, lc):
+def insert_or_translate(target_file, lc):
     base_content = base_dict[os.path.basename(target_file)]
     base_kv = {}
     for item in base_content:
         base_kv[item['key']] = item['value']
 
     target_kv = {}
-    for item in localizable.parse_strings(filename=target_file) if not notexist_or_empty_file(target_file) else None:
-        target_kv[item['key']] = item['value']
+    if not notexist_or_empty_file(target_file):
+        for item in localizable.parse_strings(filename=target_file):
+            target_kv[item['key']] = item['value']
 
     adding_keys = list(set(base_kv.keys()) - set(target_kv.keys()))
     removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
@@ -141,16 +126,16 @@ def update_or_translate(target_file, lc):
         if k in adding_keys:
             if k in translated_kv:
                 newitem['value'] = translated_kv[k]
-                newitem['comment'] = 'Translated from {0}'.format(base_kv[k])
+                print base_kv[k], '->', newitem['value']
+                newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
             else:
                 newitem['comment'] = 'Translate Failed'
         #removed
-        if k in removing_keys:
+        elif k in removing_keys:
             continue
         #existed
         else:
             newitem['value'] = base_kv[k]
-
         updated_content.append(newitem)
 
     return len(adding_keys)>0 or len(removing_keys)>0, updated_content, translated_kv
@@ -168,13 +153,32 @@ def write_file(target_file, list_of_content):
 def create_file(target_file):
     open(target_file, 'a').close()
 
-def notexist_or_empty_file(file):
-    os.path.getsize(file)==0 or os.path.exists(file)
+def notexist_or_empty_file(target_file):
+    return not os.path.exists(target_file) or os.path.getsize(target_file)==0
+
+base_dict = None
+translated_dict = {}
+
+# Get Base Language Specs
+walked = list(os.walk(__RESOURCE_PATH__, topdown=True))
+
+for dir, subdirs, files in walked:
+    if os.path.basename(dir)==__BASE_RESOUCE_DIR__:
+        base_dict = {}
+        for _file in files:
+            base_dict[_file] = strings_obj_from_file(os.path.join(dir, _file))
+
+if not base_dict:
+    print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__)
+    sys.exit(0)
 
 for dir, subdirs, files in walked:
     if dir.endswith((__DIR_SUFFIX__)):
         lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
         if lc.find('_'): lc = lc.replace('_', __LANG_SEP__)
+
+        if lc == __BASE_LANG__:
+            continue
 
         if lc in __EXCLUDING_LANGS__:
             print 'Skip: ', lc
@@ -191,23 +195,24 @@ for dir, subdirs, files in walked:
 
         added_files = [os.path.join(dir, f) for f in list(set(base_dict.keys()) - set(files))]
         removed_files = [os.path.join(dir, f) for f in list(set(files) - set(base_dict.keys()))]
-        existing_file = [os.path.join(dir, f) for f in list(set(files) - set(added_files) - set(removed_files))]
+        existing_files = [os.path.join(dir, f) for f in list(set(files) - set(added_files) - set(removed_files))]
 
         #remove - file
         for removed_file in removed_files:
             # print removed_file
             os.rename(removed_file, removed_file+'.deleted')
 
-        for ext_file in existing_file:
-            u, c, t = update_or_translate(ext_file, lc)
+        for ext_file in existing_files:
+            u, c, t = insert_or_translate(ext_file, lc)
             if u:
                 write_file(ext_file, c)
 
         #add - file
+        c = None
         for added_file in added_files:
             create_file(added_file)
-            u, c, t = update_or_translate(added_file, lc)
+            c = insert_or_translate(added_file, lc)
             if u:
                 write_file(added_file, c)
 
-        print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_file
+        print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_files
