@@ -47,12 +47,20 @@ for dir, subdirs, files in walked:
 
         #update
         for ext_file in existing_file:
-            localizable.parse_strings(filename=os.path.join(dir, ext_file))
-            print ext_file
+            base_content = base_dict[ext_file]
+            base_keys = [key['key'] for key in base_content]
+
+            target_content = localizable.parse_strings(filename=os.path.join(dir, ext_file))
+            target_keys = [key['key'] for key in target_content]
+
+            added_keys = list(set(base_keys) - set(target_keys))
+            removed_keys = list(set(target_keys) - set(base_keys))
+
+            print added_keys, removed_keys
 
         #add
         for added_file in added_files:
-            base_contents = base_dict[added_file]
+            base = base_dict[added_file]
             print os.path.join(dir, added_file)
 
 # strings = localizable.parse_strings(filename='ar.lproj/Localizable.strings')
