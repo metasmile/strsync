@@ -130,12 +130,13 @@ def insert_or_translate(target_file, lc):
                 newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
             else:
                 newitem['comment'] = 'Translate Failed'
-        #removed
-        elif k in removing_keys:
-            continue
-        #existed
+        #exists
+        elif k in existing_keys:
+            newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
+        #removed or wrong
         else:
-            newitem['value'] = base_kv[k]
+            continue
+
         updated_content.append(newitem)
 
     return len(adding_keys)>0 or len(removing_keys)>0, updated_content, translated_kv
@@ -202,17 +203,17 @@ for dir, subdirs, files in walked:
             # print removed_file
             os.rename(removed_file, removed_file+'.deleted')
 
+        #exist - lookup lines
         for ext_file in existing_files:
             u, c, t = insert_or_translate(ext_file, lc)
             if u:
                 write_file(ext_file, c)
 
         #add - file
-        c = None
         for added_file in added_files:
             create_file(added_file)
-            c = insert_or_translate(added_file, lc)
+            u, c, t = insert_or_translate(added_file, lc)
             if u:
                 write_file(added_file, c)
 
-        print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_files
+        # print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_files
