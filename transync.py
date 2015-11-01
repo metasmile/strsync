@@ -43,12 +43,12 @@ for dir, subdirs, files in walked:
         removed_files = list(set(files) - set(base_dict.keys()))
         existing_file = list(set(files) - set(added_files) - set(removed_files))
 
-        print "Added:", added_files, "Removed:", removed_files
+        print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_file
 
         #remove
         for removed_file in removed_files:
             print removed_file
-            os.rename(removed_file, removed_file+'.deleted')
+            os.rename(os.path.join(dir, removed_file), os.path.join(dir, removed_file+'.deleted'))
 
         #update
         for ext_file in existing_file:
