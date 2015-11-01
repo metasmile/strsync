@@ -36,18 +36,19 @@ for dir, subdirs, files in walked:
 
 for dir, subdirs, files in walked:
     if dir.endswith((__DIR_SUFFIX__)):
-        files = filter(lambda f: f.endswith(__FILE_SUFFIX__), files)
-        
+
+        files = map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), files))
+
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
-        existing_file = list(set(files) - set(added_files))
+        existing_file = list(set(files) - set(added_files) - set(removed_files))
 
         print "Added:", added_files, "Removed:", removed_files
 
         #remove
         for removed_file in removed_files:
             print removed_file
-            # os.rename(removed_file, removed_file+'.deleted')
+            os.rename(removed_file, removed_file+'.deleted')
 
         #update
         for ext_file in existing_file:
