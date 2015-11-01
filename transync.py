@@ -4,7 +4,7 @@
 
 from microsofttranslator import Translator
 import localizable
-import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs
+import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
 
 parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
@@ -14,8 +14,6 @@ parser.add_argument('-c','--client-id', help='Client ID for MS Translation API',
 parser.add_argument('-s','--client-secret', help='Client Secret key for MS Translation API', required=True)
 parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='.', nargs='?')
 args = vars(parser.parse_args())
-
-trans = Translator(args['client_id'], args['client_secret'])
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -32,6 +30,38 @@ if __BASE_LANG__.endswith(__DIR_SUFFIX__):
     __BASE_LANG__ = __BASE_LANG__.split(__DIR_SUFFIX__)[0]
 else:
     __BASE_RESOUCE_DIR__ = __BASE_LANG__+__DIR_SUFFIX__
+
+
+# setup Translator & langs
+
+# read ios langs
+print '[i] fetch supported locale codes for ios9 ...'
+__IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open('./lc_ios9.tsv','rb'), delimiter='\t')]
+print '[i] complete. Supported numbers of locale code :', len(__IOS9_CODES__)
+
+__MS_CODE_ALIASES__ = {
+    # MS : ISO639
+    'zh-CHS' : ['zh-Hans', 'zh-CN', 'zh-SG'],
+    'zh-CHT' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW']
+}
+
+# read mst langs
+print '[i] fetch supported locales from Microsoft Translation API...'
+trans = Translator(args['client_id'], args['client_secret'])
+
+__MS_LANG_FILE__ = './lc_ms.cached.tsv'
+__MS_SUPPORTED_CODES__ = None
+if os.path.exists(__MS_LANG_FILE__):
+    __MS_SUPPORTED_CODES__ = [l.strip() for l in open(__MS_LANG_FILE__,'rb').readlines()]
+else:
+    __MS_SUPPORTED_CODES__ = trans.get_languages()
+    cfile = open(__MS_LANG_FILE__,'w')
+    codes = ''
+    for code in __MS_SUPPORTED_CODES__:
+        codes += code+'\n'
+    cfile.write(codes)
+    cfile.close()
+print '[i] complete. Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
 
 def strings_obj_from_file(file):
     return localizable.parse_strings(filename=file)
