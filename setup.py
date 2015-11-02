@@ -29,15 +29,14 @@
 import codecs
 from setuptools import setup
 
-
 setup(
     name="transync",
     version="1.0",
     packages=[
         'transync',
     ],
-    package_dir={
-        'transync': '.'
+    entry_points = {
+        "console_scripts": ['transync = transync.transync:main']
     },
     author="Metasmile @ StellarStep, Inc.",
     author_email="cyrano905@gmail.com",
@@ -47,7 +46,7 @@ setup(
     ).read(),
     license="MIT",
     keywords="translation microsoft transync strings localizable l10n i18n ios xcode osx mac",
-    url="https://github.com/metasmile",
+    url="https://github.com/metasmile/transync",
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
