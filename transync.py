@@ -36,9 +36,9 @@ else:
 # setup Translator & langs
 
 # read ios langs
-print '[i] fetch supported locale codes for ios9 ...'
+print '(i) fetch supported locale codes for ios9 ...'
 __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open('./lc_ios9.tsv','rb'), delimiter='\t')]
-print '[i] complete. Supported numbers of locale code :', len(__IOS9_CODES__)
+print '(i) complete. Supported numbers of locale code :', len(__IOS9_CODES__)
 
 __MS_CODE_ALIASES__ = {
     # MS : ISO639
@@ -47,7 +47,7 @@ __MS_CODE_ALIASES__ = {
 }
 
 # read mst langs
-print '[i] fetch supported locales from Microsoft Translation API...'
+print '(i) fetch supported locales from Microsoft Translation API...'
 trans = Translator(args['client_id'], args['client_secret'])
 
 __MS_LANG_FILE__ = './lc_ms.cached.tsv'
@@ -62,7 +62,7 @@ else:
         codes += code+'\n'
     cfile.write(codes)
     cfile.close()
-print '[i] complete. Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
+print '(i) complete. Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
 
 # methods
 def supported_lang(code):
@@ -129,7 +129,7 @@ def insert_or_translate(target_file, lc):
                 print base_kv[k], '->', newitem['value']
                 newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
             else:
-                newitem['comment'] = 'Translate Failed'
+                newitem['comment'] = 'Translate Failed: {0}'.format(base_kv[k])
         #exists
         elif k in existing_keys:
             newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
@@ -157,6 +157,9 @@ def create_file(target_file):
 def notexist_or_empty_file(target_file):
     return not os.path.exists(target_file) or os.path.getsize(target_file)==0
 
+def resolve_file_names(target_file_names):
+    return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
+
 base_dict = None
 translated_dict = {}
 
@@ -166,14 +169,20 @@ walked = list(os.walk(__RESOURCE_PATH__, topdown=True))
 for dir, subdirs, files in walked:
     if os.path.basename(dir)==__BASE_RESOUCE_DIR__:
         base_dict = {}
-        for _file in files:
-            base_dict[_file] = strings_obj_from_file(os.path.join(dir, _file))
+        for _file in resolve_file_names(files):
+            f = os.path.join(dir, _file)
+            if notexist_or_empty_file(f):
+                continue
+
+            base_dict[_file] = strings_obj_from_file(f)
 
 if not base_dict:
     print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__)
     sys.exit(0)
 
 for dir, subdirs, files in walked:
+    files = resolve_file_names(files)
+
     if dir.endswith((__DIR_SUFFIX__)):
         lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
         if lc.find('_'): lc = lc.replace('_', __LANG_SEP__)
@@ -192,22 +201,19 @@ for dir, subdirs, files in walked:
 
         print 'Start synchronizing... ', lc
 
-        files = map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), files))
-
-        added_files = [os.path.join(dir, f) for f in list(set(base_dict.keys()) - set(files))]
-        removed_files = [os.path.join(dir, f) for f in list(set(files) - set(base_dict.keys()))]
-        existing_files = [os.path.join(dir, f) for f in list(set(files) - set(added_files) - set(removed_files))]
+        added_files = list(set(base_dict.keys()) - set(files))
+        removed_files = list(set(files) - set(base_dict.keys()))
+        existing_files = list(set(files) - (set(added_files) | set(removed_files)))
+        
+        ljoin = lambda f: os.path.join(dir, f)
+        added_files = map(ljoin, added_files)
+        removed_files = map(ljoin, removed_files)
+        existing_files = map(ljoin, existing_files)
 
         #remove - file
         for removed_file in removed_files:
             # print removed_file
             os.rename(removed_file, removed_file+'.deleted')
-
-        #exist - lookup lines
-        for ext_file in existing_files:
-            u, c, t = insert_or_translate(ext_file, lc)
-            if u:
-                write_file(ext_file, c)
 
         #add - file
         for added_file in added_files:
@@ -215,5 +221,11 @@ for dir, subdirs, files in walked:
             u, c, t = insert_or_translate(added_file, lc)
             if u:
                 write_file(added_file, c)
+
+        #exist - lookup lines
+        for ext_file in existing_files:
+            u, c, t = insert_or_translate(ext_file, lc)
+            if u:
+                write_file(ext_file, c)
 
         # print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_files
