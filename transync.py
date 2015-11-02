@@ -43,7 +43,11 @@ print '(i) Supported numbers of locale code :', len(__IOS9_CODES__)
 __MS_CODE_ALIASES__ = {
     # MS API Supported : ios9 supported ISO639 1-2 codes
     'zh-CHS' : ['zh-Hans', 'zh-CN', 'zh-SG'],
-    'zh-CHT' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW']
+    'zh-CHT' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW'],
+    'en' : ['en-AU', 'en-GB'],
+    'es' : ['es-MX'],
+    'fr' : ['fr-CA'],
+    'pt' : ['pt-BR','pt-PT']
 }
 
 # read mst langs
