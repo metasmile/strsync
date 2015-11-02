@@ -1,6 +1,11 @@
 # transync
 Automatically translate and synchronize '.strings' files from defined base language.
 
+The basic concept of this tool is simple file name based one-way synchronizer.
+While the actual translation work, My biggest desire was to just fill an empty strings easily.
+In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc..
+
+If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, String on the key that already exists will not be modified at all.
 
 ## Usage
 
