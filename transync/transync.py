@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # transync - Automatically translate and synchronize .strings files from defined base language.
-# Copyright (c) 2015 Xoropsax cyrano905@gmail.com (github.com/metasmile)
+# Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
 from microsofttranslator import Translator
 import localizable

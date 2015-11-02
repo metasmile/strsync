@@ -12,7 +12,7 @@ If you are running, other localized resources will have exactly the same key wit
 Naturally, this tool follow [standard ISO639 1~2 codes](http://www.loc.gov/standards/iso639-2/php/English_list.php) or [apple's official document](https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/LanguageandLocaleIDs/LanguageandLocaleIDs.html) or [csv file](https://gist.github.com/pjc-is/49971b36db38fdeae6fc)
 
 ```
-usage: transync.py [-h] [-b BASE_LANG_NAME]
+usage: transync    [-h] [-b BASE_LANG_NAME]
                    [-x [EXCLUDING_LANG_NAMES ...]] -c
                    CLIENT_ID -s CLIENT_SECRET
                    [-f [FORCE_TRANSLATE_KEYS ...]]
@@ -44,22 +44,22 @@ optional arguments:
 
 ### Examples to use
 ```
-$ python transync.py -c clien_idXXXX -s clien_secretXXXX
+$ transync -c clien_idXXXX -s clien_secretXXXX
 ```
 
 Define specific path you want.
 ```
-$ python transync.py ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX
+$ transync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX
 ```
 
 Excluding japanese, spanish, finnish
 ```
-$ python transync.py ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
+$ transync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
 ```
 
 Forcefully translate and update by specific keys you want.
 ```
-$ python transync.py -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
+$ transync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
 ```
 
 ## Requirements
@@ -92,5 +92,3 @@ pyOpenSSL
 ndg-httpsclient
 pyasn1
 ```
-
-
