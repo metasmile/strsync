@@ -41,7 +41,7 @@ __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open('./lc_ios9.tsv','r
 print '(i) Supported numbers of locale code :', len(__IOS9_CODES__)
 
 __MS_CODE_ALIASES__ = {
-    # MS : ISO639
+    # MS API Supported : ios9 supported ISO639 1-2 codes
     'zh-CHS' : ['zh-Hans', 'zh-CN', 'zh-SG'],
     'zh-CHT' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW']
 }
@@ -113,7 +113,7 @@ def insert_or_translate(target_file, lc):
     """
     translated_kv = {};
     if len(adding_keys)>0:
-        print 'Translating... [{0}]'.format(lc)
+        print 'Translating... [{0}]'.format(lc), '\n'
         translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
 
     updated_content = []
@@ -126,20 +126,23 @@ def insert_or_translate(target_file, lc):
         if k in adding_keys:
             if k in translated_kv:
                 newitem['value'] = translated_kv[k]
-                print 'Added - Key:', k, 'Value:', base_kv[k], '->', newitem['value']
+                print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k]), '\n'
                 newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
             else:
-                print 'Failed -', 'Key:', k, 'Value:', base_kv[k], '-> X', newitem['value']
+                print '[Fail] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k]), '\n'
                 newitem['comment'] = 'Translate Failed: {0}'.format(base_kv[k])
         #exists
         elif k in existing_keys:
             newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
-        #removed or wrong
-        else:
-            print 'Removed -', 'Key:', k
-            continue
 
         updated_content.append(newitem)
+
+    #removed or wrong
+    for k in removing_keys:
+        print '[Remove]', k, '\n'
+
+    if len(adding_keys) or len(removing_keys):
+        print '(i) Changed Keys: Added {0}, Removed {1}'.format(len(adding_keys), len(removing_keys)), '\n'
 
     return len(adding_keys)>0 or len(removing_keys)>0, updated_content, translated_kv
 
@@ -155,7 +158,7 @@ def write_file(target_file, list_of_content):
         f.write(contents)
         suc = True
     except IOError:
-        print 'IOError to open', target_file
+        print 'IOError to open', target_file, '\n'
     finally:
         f.close()
     return suc
@@ -165,7 +168,7 @@ def remove_file(target_file):
         os.rename(target_file, target_file+'.deleted')
         return True
     except IOError:
-        print 'IOError to rename', target_file
+        print 'IOError to rename', target_file, '\n'
         return False
 
 def create_file(target_file):
@@ -194,7 +197,7 @@ for dir, subdirs, files in walked:
             base_dict[_file] = strings_obj_from_file(f)
 
 if not base_dict:
-    print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__)
+    print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__), '\n'
     sys.exit(0)
 
 for dir, subdirs, files in walked:
@@ -208,15 +211,15 @@ for dir, subdirs, files in walked:
             continue
 
         if lc in __EXCLUDING_LANGS__:
-            print 'Skip: ', lc
+            print 'Skip: ', lc, '\n'
             continue
 
         lc = supported_lang(lc)
         if not lc:
-            print 'Does not supported: ', lc
+            print 'Does not supported: ', lc, '\n'
             continue
 
-        print '\nStart synchronizing... TARGET: {0}, LANG: {1}'.format(os.path.basename(dir), lc)
+        print 'Target lang : {1} [path : {0}]\nStart synchronizing... '.format(dir, lc), '\n'
 
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
@@ -228,27 +231,52 @@ for dir, subdirs, files in walked:
         existing_files = map(ljoin, existing_files)
 
         added_cnt, updated_cnt, removed_cnt = 0, 0, 0
+        added_translations_num_of_files = {}
 
         #remove - file
         for removed_file in removed_files:
-            print 'Removing File ...', removed_file
+            print 'Removing File... [{0}]'.format(removed_file), '\n'
             if remove_file(removed_file):
                 removed_cnt+=1
 
         #add - file
         for added_file in added_files:
-            print 'Adding File ...', added_file
+            print 'Adding File... [{0}]'.format(added_file), '\n'
             create_file(added_file)
             u, c, t = insert_or_translate(added_file, lc)
             if u and write_file(added_file, c):
                 added_cnt+=1
+                added_translations_num_of_files[added_file] = t
 
         #exist - lookup lines
         for ext_file in existing_files:
             u, c, t = insert_or_translate(ext_file, lc)
             if u:
-                print 'Updating File ...', ext_file, 'Translated :', len(t.keys())
+                print 'Updating File... [{0}]'.format(ext_file), '\n'
                 if write_file(ext_file, c):
-                    updated_cnt+1
+                    updated_cnt=+1
+                    added_translations_num_of_files[ext_file] = t
 
-        print '(i) Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt), 'for TARGET: {0}, LANG: {1}'.format(os.path.basename(dir), lc)
+        if added_cnt or updated_cnt or removed_cnt:
+            print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt), '\n'
+
+        translated_dict[lc] = {
+            'deleted_files' : removed_files,
+            'translated_files' : added_translations_num_of_files
+        }
+
+for lc in translated_dict.keys():
+    tfiles = translated_dict[lc]['translated_files']
+    tcnt = 0
+    if tfiles:
+        # print '============ Results for langcode : {0} ============='.format(lc), '\n'
+        for f in tfiles:
+            if len(tfiles[f]):
+                # print '', f, '\n', '\n'
+                for key in tfiles[f]:
+                    tcnt += 1
+                    # print key, ' = ', tfiles[f][key], '\n'
+
+        print 'New Translated Line Total : {0}'.format(tcnt), '\n'
+
+    print "Synchronized." if tfiles else "Nothing to translate or add. All resources are synchronized.", '\n'
