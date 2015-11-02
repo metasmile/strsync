@@ -15,7 +15,11 @@ Naturally, this tool follow [standard ISO639 1~2 codes](http://www.loc.gov/stand
 usage: transync.py [-h] [-b BASE_LANG_NAME]
                    [-x [EXCLUDING_LANG_NAMES ...]] -c
                    CLIENT_ID -s CLIENT_SECRET
+                   [-f [FORCE_TRANSLATE_KEYS ...]]
                    [target path]
+
+Automatically translate and synchronize .strings files from defined base
+language.
 
 positional arguments:
   target path           Target localizable resource path. (root path of
@@ -34,6 +38,8 @@ optional arguments:
                         Client ID for MS Translation API
   -s CLIENT_SECRET, --client-secret CLIENT_SECRET
                         Client Secret key for MS Translation API
+  -f [FORCE_TRANSLATE_KEYS ...], --force-translate-keys [FORCE_TRANSLATE_KEYS ...]
+                        Keys in the strings to update and translate by force.
 ```
 
 ### Examples to use
@@ -51,20 +57,23 @@ Excluding japanese, spanish, finnish
 $ python transync.py ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
 ```
 
+Forcefully translate and update by specific keys you want.
+```
+$ python transync.py -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
+```
 
 ## Requirements
-
 ### Install
 
 ```
 pip install transync
 ```
 
-### About Microsoft Translation API
+### Using Microsoft Translation API
 
 This tool using [Microsoft-Translator-Python-API, wrote by OpenLabs](https://github.com/openlabs/Microsoft-Translator-Python-API).
 
-So you should do several requirements.
+So you should do several processes by requirements.
 
 #### Getting your client id/secret id
 
