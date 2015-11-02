@@ -36,9 +36,9 @@ else:
 # setup Translator & langs
 
 # read ios langs
-print '(i) fetch supported locale codes for ios9 ...'
+print '(i) Fetching supported locale codes for ios9 ...'
 __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open('./lc_ios9.tsv','rb'), delimiter='\t')]
-print '(i) complete. Supported numbers of locale code :', len(__IOS9_CODES__)
+print '(i) Supported numbers of locale code :', len(__IOS9_CODES__)
 
 __MS_CODE_ALIASES__ = {
     # MS : ISO639
@@ -47,7 +47,7 @@ __MS_CODE_ALIASES__ = {
 }
 
 # read mst langs
-print '(i) fetch supported locales from Microsoft Translation API...'
+print '(i) Fetching supported locales from Microsoft Translation API...'
 trans = Translator(args['client_id'], args['client_secret'])
 
 __MS_LANG_FILE__ = './lc_ms.cached.tsv'
@@ -62,7 +62,7 @@ else:
         codes += code+'\n'
     cfile.write(codes)
     cfile.close()
-print '(i) complete. Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
+print '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
 
 # methods
 def supported_lang(code):
@@ -113,7 +113,7 @@ def insert_or_translate(target_file, lc):
     """
     translated_kv = {};
     if len(adding_keys)>0:
-        print 'Translating... ', lc
+        print 'Translating... [{0}]'.format(lc)
         translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
 
     updated_content = []
@@ -126,15 +126,17 @@ def insert_or_translate(target_file, lc):
         if k in adding_keys:
             if k in translated_kv:
                 newitem['value'] = translated_kv[k]
-                print base_kv[k], '->', newitem['value']
+                print 'Added - Key:', k, 'Value:', base_kv[k], '->', newitem['value']
                 newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
             else:
+                print 'Failed -', 'Key:', k, 'Value:', base_kv[k], '-> X', newitem['value']
                 newitem['comment'] = 'Translate Failed: {0}'.format(base_kv[k])
         #exists
         elif k in existing_keys:
             newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
         #removed or wrong
         else:
+            print 'Removed -', 'Key:', k
             continue
 
         updated_content.append(newitem)
@@ -142,14 +144,29 @@ def insert_or_translate(target_file, lc):
     return len(adding_keys)>0 or len(removing_keys)>0, updated_content, translated_kv
 
 def write_file(target_file, list_of_content):
-    f = codecs.open(target_file, "w", "utf-8")
-    contents = ''
-    for content in list_of_content:
-        if content['comment']:
-            contents += '/* {0} */'.format(content['comment']) + '\n'
-        contents += '"{0}" = "{1}";'.format(content['key'], content['value']) + '\n'
-    f.write(contents)
-    f.close()
+    suc = False
+    try:
+        f = codecs.open(target_file, "w", "utf-8")
+        contents = ''
+        for content in list_of_content:
+            if content['comment']:
+                contents += '/* {0} */'.format(content['comment']) + '\n'
+            contents += '"{0}" = "{1}";'.format(content['key'], content['value']) + '\n'
+        f.write(contents)
+        suc = True
+    except IOError:
+        print 'IOError to open', target_file
+    finally:
+        f.close()
+    return suc
+
+def remove_file(target_file):
+    try:
+        os.rename(target_file, target_file+'.deleted')
+        return True
+    except IOError:
+        print 'IOError to rename', target_file
+        return False
 
 def create_file(target_file):
     open(target_file, 'a').close()
@@ -199,7 +216,7 @@ for dir, subdirs, files in walked:
             print 'Does not supported: ', lc
             continue
 
-        print 'Start synchronizing... ', lc
+        print '\nStart synchronizing... TARGET: {0}, LANG: {1}'.format(os.path.basename(dir), lc)
 
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
@@ -210,22 +227,28 @@ for dir, subdirs, files in walked:
         removed_files = map(ljoin, removed_files)
         existing_files = map(ljoin, existing_files)
 
+        added_cnt, updated_cnt, removed_cnt = 0, 0, 0
+
         #remove - file
         for removed_file in removed_files:
-            # print removed_file
-            os.rename(removed_file, removed_file+'.deleted')
+            print 'Removing File ...', removed_file
+            if remove_file(removed_file):
+                removed_cnt+=1
 
         #add - file
         for added_file in added_files:
+            print 'Adding File ...', added_file
             create_file(added_file)
             u, c, t = insert_or_translate(added_file, lc)
-            if u:
-                write_file(added_file, c)
+            if u and write_file(added_file, c):
+                added_cnt+=1
 
         #exist - lookup lines
         for ext_file in existing_files:
             u, c, t = insert_or_translate(ext_file, lc)
             if u:
-                write_file(ext_file, c)
+                print 'Updating File ...', ext_file, 'Translated :', len(t.keys())
+                if write_file(ext_file, c):
+                    updated_cnt+1
 
-        # print "Added:", added_files, "Removed:", removed_files, "Existing:", existing_files
+        print '(i) Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt), 'for TARGET: {0}, LANG: {1}'.format(os.path.basename(dir), lc)
