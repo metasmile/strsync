@@ -106,7 +106,7 @@ def insert_or_translate(target_file, lc):
 
     adding_keys = list(set(base_kv.keys()) - set(target_kv.keys()))
     removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
-    existing_keys = list(set(base_kv.keys()) - set(adding_keys) - set(removing_keys))
+    existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
 
     """
     perform translate
@@ -204,7 +204,7 @@ for dir, subdirs, files in walked:
         added_files = list(set(base_dict.keys()) - set(files))
         removed_files = list(set(files) - set(base_dict.keys()))
         existing_files = list(set(files) - (set(added_files) | set(removed_files)))
-        
+
         ljoin = lambda f: os.path.join(dir, f)
         added_files = map(ljoin, added_files)
         removed_files = map(ljoin, removed_files)
