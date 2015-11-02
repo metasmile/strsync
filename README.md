@@ -31,6 +31,22 @@ optional arguments:
                         Client Secret key for MS Translation API
 ```
 
+### Examples to use
+```
+$ python transync.py -c clien_idXXXX -s clien_secretXXXX
+```
+
+Define specific path you want.
+```
+$ python transync.py ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX
+```
+
+Excluding japanese, spanish, finnish
+```
+$ python transync.py ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
+```
+
+
 ## Requirements
 
 ### Install
