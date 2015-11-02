@@ -62,6 +62,7 @@ setup(
     ],
     install_requires=[
         'microsofttranslator',
+        'localizable',
         'requests >= 1.2.3',
         'six',
     ]
