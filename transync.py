@@ -25,7 +25,7 @@ __DIR_SUFFIX__ = ".lproj"
 __FILE_SUFFIX__ = ".strings"
 __RESOURCE_PATH__ = expanduser(args['target path'])
 __BASE_LANG__ = args['base_lang_name']
-__EXCLUDING_LANGS__ = args['excluding_lang_names']
+__EXCLUDING_LANGS__ = args['excluding_lang_names'] or []
 __FORCE_TRANSLATE__ = args['force_translate_keys'] or []
 __BASE_RESOUCE_DIR__ = None
 if __BASE_LANG__.endswith(__DIR_SUFFIX__):
@@ -285,4 +285,4 @@ for lc in translated_dict.keys():
 
         print 'New Translated Line Total : {0}'.format(tcnt), '\n'
 
-    print "Synchronized." if tfiles else "Nothing to translate or add. All resources are synchronized.", '\n'
+    print "Synchronized." if tfiles else "Nothing to translate or add. All resources are synchronized."
