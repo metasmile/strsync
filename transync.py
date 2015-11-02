@@ -9,9 +9,10 @@ from os.path import expanduser
 
 parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
 parser.add_argument('-b','--base-lang-name', help='A base(or source) localizable resource name.(default=\'Base\'), (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default='Base', required=False)
-parser.add_argument('-x','--excluding-lang-names',type=str, help='A localizable resource name that you want to exclude. (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', required=False, nargs='+')
+parser.add_argument('-x','--excluding-lang-names', type=str, help='A localizable resource name that you want to exclude. (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', required=False, nargs='+')
 parser.add_argument('-c','--client-id', help='Client ID for MS Translation API', required=True)
 parser.add_argument('-s','--client-secret', help='Client Secret key for MS Translation API', required=True)
+parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force.', required=False, nargs='+')
 parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='.', nargs='?')
 args = vars(parser.parse_args())
 
@@ -25,6 +26,7 @@ __FILE_SUFFIX__ = ".strings"
 __RESOURCE_PATH__ = expanduser(args['target path'])
 __BASE_LANG__ = args['base_lang_name']
 __EXCLUDING_LANGS__ = args['excluding_lang_names']
+__FORCE_TRANSLATE__ = args['force_translate_keys'] or []
 __BASE_RESOUCE_DIR__ = None
 if __BASE_LANG__.endswith(__DIR_SUFFIX__):
     __BASE_RESOUCE_DIR__ = __BASE_LANG__
@@ -108,7 +110,7 @@ def insert_or_translate(target_file, lc):
         for item in localizable.parse_strings(filename=target_file):
             target_kv[item['key']] = item['value']
 
-    adding_keys = list(set(base_kv.keys()) - set(target_kv.keys()))
+    adding_keys = list((set(base_kv.keys()) - set(target_kv.keys())) | set(__FORCE_TRANSLATE__))
     removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
     existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
 
