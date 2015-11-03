@@ -92,8 +92,8 @@ def main():
             return None
 
     def translate_ms(strs, to):
-        is_supported = supported_lang(to)
-        return [r['TranslatedText'] for r in trans.translate_array(strs, to)] if is_supported else strs
+        lang = supported_lang(to)
+        return [r['TranslatedText'] for r in trans.translate_array(strs, lang)] if lang else strs
 
     def strings_obj_from_file(file):
         return localizable.parse_strings(filename=file)
