@@ -113,7 +113,7 @@ def main():
             for item in localizable.parse_strings(filename=target_file):
                 target_kv[item['key']] = item['value']
 
-        adding_keys = list((set(base_kv.keys()) - set(target_kv.keys())) | set(__FORCE_TRANSLATE__))
+        adding_keys = list((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(__FORCE_TRANSLATE__)))
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
         existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
 
