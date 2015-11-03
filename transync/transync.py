@@ -7,6 +7,9 @@ import localizable
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
 
+def resolve_file_path(file):
+    return os.path.join(os.path.dirname(__file__), file)
+
 def main():
     parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
     parser.add_argument('-b','--base-lang-name', help='A base(or source) localizable resource name.(default=\'Base\'), (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default='Base', required=False)
@@ -39,7 +42,7 @@ def main():
 
     # read ios langs
     print '(i) Fetching supported locale codes for ios9 ...'
-    __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open('./lc_ios9.tsv','rb'), delimiter='\t')]
+    __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
     print '(i) Supported numbers of locale code :', len(__IOS9_CODES__)
 
     __MS_CODE_ALIASES__ = {
@@ -56,7 +59,7 @@ def main():
     print '(i) Fetching supported locales from Microsoft Translation API...'
     trans = Translator(args['client_id'], args['client_secret'])
 
-    __MS_LANG_FILE__ = './lc_ms.cached.tsv'
+    __MS_LANG_FILE__ = resolve_file_path('lc_ms.cached.tsv')
     __MS_SUPPORTED_CODES__ = None
     if os.path.exists(__MS_LANG_FILE__):
         __MS_SUPPORTED_CODES__ = [l.strip() for l in open(__MS_LANG_FILE__,'rb').readlines()]
@@ -118,7 +121,7 @@ def main():
         perform translate
         """
         translated_kv = {};
-        if len(adding_keys)>0:
+        if len(adding_keys):
             print 'Translating... [{0}]'.format(lc), '\n'
             translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
 

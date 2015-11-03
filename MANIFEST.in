@@ -1,2 +1,3 @@
 include LICENSE
-include README.md
+include README.*
+include transync/lc_ios9.tsv
