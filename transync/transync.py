@@ -35,6 +35,12 @@ def main():
     __EXCLUDING_LANGS__ = args['excluding_lang_names'] or []
     __FORCE_TRANSLATE__ = args['force_translate_keys'] or []
     __BASE_RESOUCE_DIR__ = None
+
+    __LITERNAL_FORMAT__ = "%@"
+    __LITERNAL_FORMAT_RE__ = re.compile(r"(%\s{1,}@)|(@\s{0,}%)")
+    __LITERNAL_REPLACEMENT__ = "**"
+    __LITERNAL_REPLACEMENT_RE__ = re.compile(r"\*\s{0,}\*")
+
     if __BASE_LANG__.endswith(__DIR_SUFFIX__):
         __BASE_RESOUCE_DIR__ = __BASE_LANG__
         __BASE_LANG__ = __BASE_LANG__.split(__DIR_SUFFIX__)[0]
@@ -91,9 +97,22 @@ def main():
         else:
             return None
 
+    def preprocessing_translate_strs(strs):
+        return [__LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, s.strip()).replace(__LITERNAL_FORMAT__, __LITERNAL_REPLACEMENT__) for s in strs]
+
+    def postprocessing_translate_str(str):
+        return validate_liternal_replacement(str.strip()).replace(__LITERNAL_REPLACEMENT__, __LITERNAL_FORMAT__)
+
+    def validate_liternal_format(str):
+        return __LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, str)
+
+    def validate_liternal_replacement(str):
+        return __LITERNAL_REPLACEMENT_RE__.sub(__LITERNAL_FORMAT__, str)
+
     def translate_ms(strs, to):
         lang = supported_lang(to)
-        return [r['TranslatedText'] for r in trans.translate_array(strs, lang)] if lang else strs
+        strs = preprocessing_translate_strs(strs)
+        return [postprocessing_translate_str(r['TranslatedText']) for r in trans.translate_array(strs, lang)] if lang else strs
 
     def strings_obj_from_file(file):
         return localizable.parse_strings(filename=file)
