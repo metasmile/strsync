@@ -10,6 +10,9 @@ from os.path import expanduser
 def resolve_file_path(file):
     return os.path.join(os.path.dirname(__file__), file)
 
+def join_path_all(target_dir, target_files):
+    return map(lambda f: os.path.join(target_dir, f), target_files)
+
 def main():
     parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
     parser.add_argument('-b','--base-lang-name', help='A base(or source) localizable resource name.(default=\'Base\'), (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default='Base', required=False)
@@ -190,7 +193,7 @@ def main():
         return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
 
     base_dict = None
-    translated_dict = {}
+    results_dict = {}
 
     # Get Base Language Specs
 
@@ -220,7 +223,6 @@ def main():
         if dir.endswith((__DIR_SUFFIX__)):
             lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
             if lc.find('_'): lc = lc.replace('_', __LANG_SEP__)
-
             if lc == __BASE_LANG__:
                 continue
 
@@ -228,9 +230,18 @@ def main():
                 print 'Skip: ', lc
                 continue
 
-            lc = supported_lang(lc)
-            if not lc:
+            # lc = supported_lang(lc)
+            results_dict[lc] = {
+                'deleted_files' : [],
+                'added_files' : [],
+                'updated_files' : [],
+                'skipped_files' : [],
+                'translated_files_lines' : []
+            }
+
+            if not supported_lang(lc):
                 print 'Does not supported: ', lc
+                results_dict[lc]['skipped_files'] = join_path_all(dir, files)
                 continue
 
             print '\n', 'Start analayzing localizables... {1} (at {0})'.format(dir, lc)
@@ -239,10 +250,9 @@ def main():
             removed_files = list(set(files) - set(base_dict.keys()))
             existing_files = list(set(files) - (set(added_files) | set(removed_files)))
 
-            ljoin = lambda f: os.path.join(dir, f)
-            added_files = map(ljoin, added_files)
-            removed_files = map(ljoin, removed_files)
-            existing_files = map(ljoin, existing_files)
+            added_files = join_path_all(dir, added_files)
+            removed_files = join_path_all(dir, removed_files)
+            existing_files = join_path_all(dir, existing_files)
 
             added_cnt, updated_cnt, removed_cnt = 0, 0, 0
             added_translations_num_of_files = {}
@@ -274,15 +284,33 @@ def main():
             if added_cnt or updated_cnt or removed_cnt:
                 print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt)
 
-            translated_dict[lc] = {
-                'deleted_files' : removed_files,
-                'translated_files' : added_translations_num_of_files
-            }
+            """
+            Results
+            """
+            results_dict[lc]['deleted_files'] = removed_files
+            results_dict[lc]['added_files'] = list(set(added_files) & set(added_translations_num_of_files.keys()))
+            results_dict[lc]['updated_files'] = list(set(existing_files) & set(added_translations_num_of_files.keys()))
+            results_dict[lc]['translated_files_lines'] = added_translations_num_of_files
 
     # print total Results
+    print ''
     t_file_cnt, t_line_cnt = 0, 0
-    for lc in translated_dict.keys():
-        tfiles = translated_dict[lc]['translated_files']
+    file_add_cnt, file_remove_cnt, file_update_cnt, file_skip_cnt = 0,0,0,0
+
+    for lc in results_dict.keys():
+        result_lc = results_dict[lc]
+
+        file_add_cnt += len(result_lc['added_files'])
+        file_remove_cnt += len(result_lc['deleted_files'])
+        file_update_cnt += len(result_lc['updated_files'])
+        file_skip_cnt += len(result_lc['skipped_files'])
+
+        for f in result_lc['added_files']: print 'Add',f
+        for f in result_lc['deleted_files']: print 'Remove',f
+        for f in result_lc['updated_files']: print 'Update',f
+        for f in result_lc['skipped_files']: print 'Skip',f
+
+        tfiles = result_lc['translated_files_lines']
         if tfiles:
             # print '============ Results for langcode : {0} ============='.format(lc)
             for f in tfiles:
@@ -294,8 +322,9 @@ def main():
                         # print key, ' = ', tfiles[f][key]
 
     print ''
-    if t_line_cnt:
+    if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt:
         print 'New Translated Strings Total : {0}'.format(t_line_cnt)
+        print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
     else:
         print "Nothing to translate or add. All resources are synchronized."
