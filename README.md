@@ -1,4 +1,5 @@
-# strsync
+![](https://cdn.rawgit.com/metasmile/strsync/master/logo.svg)
+
 Automatically translate and synchronize '.strings' files from defined base language.
 
 The basic concept of this tool is simple file name based one-way synchronizer.
