@@ -7,6 +7,26 @@ In a normal project, automatic translation is sufficient. Because They are alway
 
 If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, String on the key that already exists will not be modified at all.
 
+![](https://github.com/metasmile/metasmile.github.io/blob/master/static/strsync/desc.png)
+
+## Requirements
+### Install
+```
+pip install strsync
+```
+
+#### Getting your client id/secret id to use Microsoft Translation API
+
+Try accordance with [this explanation](https://msdn.microsoft.com/en-us/library/mt146806.aspx)
+
+#### Update Python SSL packages if needed
+
+this is not required for python-2.7.9+
+
+```shell
+pip install requests[security]
+```
+
 ## Usage
 
 Naturally, this tool follow [standard ISO639 1~2 codes](http://www.loc.gov/standards/iso639-2/php/English_list.php) or [apple's official document](https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/LanguageandLocaleIDs/LanguageandLocaleIDs.html) or [csv file](https://gist.github.com/pjc-is/49971b36db38fdeae6fc)
@@ -62,33 +82,3 @@ Forcefully translate and update by specific keys you want.
 $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
 ```
 
-## Requirements
-### Install
-
-```
-pip install strsync
-```
-
-### Using Microsoft Translation API
-
-This tool using [Microsoft-Translator-Python-API, wrote by OpenLabs](https://github.com/openlabs/Microsoft-Translator-Python-API).
-
-So you should do several processes by requirements.
-
-#### Getting your client id/secret id
-
-Try accordance with [this explanation](https://github.com/openlabs/Microsoft-Translator-Python-API#registering-your-application)
-
-#### Update python SSL packages
-
-this is not required for python-2.7.9+
-
-```shell
-pip install requests[security]
-```
-This installs following extra packages:
-```
-pyOpenSSL
-ndg-httpsclient
-pyasn1
-```
