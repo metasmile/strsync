@@ -49,6 +49,9 @@ def main():
     __LITERNAL_REPLACEMENT__ = "**"
     __LITERNAL_REPLACEMENT_RE__ = re.compile(r"\*\s{0,}\*")
 
+    __QUOTES_RE__ = re.compile(r"\"")
+    __QUOTES_REPLACEMENT__ = "'"
+
     if __BASE_LANG__.endswith(__DIR_SUFFIX__):
         __BASE_RESOUCE_DIR__ = __BASE_LANG__
         __BASE_LANG__ = __BASE_LANG__.split(__DIR_SUFFIX__)[0]
@@ -109,7 +112,14 @@ def main():
         return [__LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, s.strip()).replace(__LITERNAL_FORMAT__, __LITERNAL_REPLACEMENT__) for s in strs]
 
     def postprocessing_translate_str(str):
-        return validate_liternal_replacement(str.strip()).replace(__LITERNAL_REPLACEMENT__, __LITERNAL_FORMAT__)
+        str = str.strip()
+        # remove Quotes
+        str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, str)
+        # replace tp liternal replacement
+        str = validate_liternal_replacement(str)
+        # liternal replacement to liternal for format
+        str = str.replace(__LITERNAL_REPLACEMENT__, __LITERNAL_FORMAT__)
+        return str
 
     def validate_liternal_format(str):
         return __LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, str)
@@ -167,8 +177,7 @@ def main():
         translated_kv = {};
         if len(adding_keys):
             print 'Translating...'
-            translate_taget_keys = list(set(adding_keys) - set(target_error_lines.keys()))
-            translated_kv = dict(zip(translate_taget_keys, translate_ms([base_kv[k] for k in translate_taget_keys], lc)))
+            translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
 
         updated_content = []
         for item in base_content:
@@ -361,10 +370,10 @@ def main():
         file_update_cnt += len(result_lc['updated_files'])
         file_skip_cnt += len(result_lc['skipped_files'])
 
-        for f in result_lc['added_files']: print 'Add',f
-        for f in result_lc['deleted_files']: print 'Remove',f
-        for f in result_lc['updated_files']: print 'Update',f
-        for f in result_lc['skipped_files']: print 'Skip',f
+        for f in result_lc['added_files']: print 'Added',f
+        for f in result_lc['deleted_files']: print 'Removed',f
+        for f in result_lc['updated_files']: print 'Updated',f
+        for f in result_lc['skipped_files']: print 'Skiped',f
 
         tfiles = result_lc['translated_files_lines']
         if tfiles:
@@ -381,7 +390,7 @@ def main():
     found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
 
     if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt or found_warining:
-        print 'New Translated Strings Total : {0}'.format(t_line_cnt)
+        print 'Total New Translated Strings : {0}'.format(t_line_cnt)
         print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
 
