@@ -7,7 +7,8 @@ In a normal project, automatic translation is sufficient. Because They are alway
 
 If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, String on the key that already exists will not be modified at all.
 
-![](https://github.com/metasmile/metasmile.github.io/blob/master/static/strsync/desc.png)
+![](https://github.com/metasmile/metasmile.github.io/blob/master/static/strsync/desc1.png)
+
 
 ## Requirements
 ### Install
