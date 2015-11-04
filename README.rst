@@ -1,4 +1,4 @@
-transync
+strsync
 ========
 
 Automatically translate and synchronize '.strings' files from defined
@@ -25,7 +25,7 @@ or `csv file <https://gist.github.com/pjc-is/49971b36db38fdeae6fc>`__
 
 ::
 
-    usage: transync    [-h] [-b BASE_LANG_NAME]
+    usage: strsync    [-h] [-b BASE_LANG_NAME]
                        [-x [EXCLUDING_LANG_NAMES ...]] -c
                        CLIENT_ID -s CLIENT_SECRET
                        [-f [FORCE_TRANSLATE_KEYS ...]]
@@ -59,25 +59,25 @@ Examples to use
 
 ::
 
-    $ transync -c clien_idXXXX -s clien_secretXXXX
+    $ strsync -c clien_idXXXX -s clien_secretXXXX
 
 Define specific path you want.
 
 ::
 
-    $ transync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX
+    $ strsync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX
 
 Excluding japanese, spanish, finnish
 
 ::
 
-    $ transync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
+    $ strsync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretXXXX -x ja es fi
 
 Forcefully translate and update by specific keys you want.
 
 ::
 
-    $ transync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
+    $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
 
 Requirements
 ------------
@@ -87,7 +87,7 @@ Install
 
 ::
 
-    pip install transync
+    pip install strsync
 
 Using Microsoft Translation API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

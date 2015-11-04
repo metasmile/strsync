@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
 """
-    transync - Automatically translate and synchronize .strings files from defined base language.
+    strsync - Automatically translate and synchronize .strings files from defined base language.
     Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
-    repo : https://github.com/metasmile/transync
+    repo : https://github.com/metasmile/strsync
 """
 import codecs
 from setuptools import setup
 
 setup(
-    name="transync",
+    name="strsync",
     version="1.0.2",
     packages=[
-        'transync',
+        'strsync',
     ],
     entry_points = {
-        "console_scripts": ['transync = transync.transync:main']
+        "console_scripts": ['strsync = strsync.strsync:main']
     },
     author="Metasmile @ StellarStep, Inc.",
     author_email="cyrano905@gmail.com",
-    description="transync - Automatically translate and synchronize localizable resource files from defined base language for Xcode.",
+    description="strsync - Automatically translate and synchronize localizable resource files from defined base language for Xcode.",
     long_description=codecs.open(
         'README.rst', encoding='UTF-8'
     ).read(),
     license="MIT",
-    keywords="translation microsoft transync strings localizable l10n i18n ios xcode osx mac",
-    url="https://github.com/metasmile/transync",
+    keywords="translation microsoft strsync strings localizable l10n i18n ios xcode osx mac",
+    url="https://github.com/metasmile/strsync",
     include_package_data=True,
     classifiers=[
         "Development Status :: 5 - Production/Stable",

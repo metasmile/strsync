@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# transync - Automatically translate and synchronize .strings files from defined base language.
+# strsync - Automatically translate and synchronize .strings files from defined base language.
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
 from microsofttranslator import Translator
@@ -263,7 +263,7 @@ def main():
                 results_dict[lc]['skipped_files'] = join_path_all(dir, files)
                 continue
 
-            print '\n', 'Start analayzing localizables... {1} (at {0})'.format(dir, lc)
+            print '\n', 'Analayzing localizables... {1} (at {0})'.format(dir, lc)
 
             added_files = list(set(base_dict.keys()) - set(files))
             removed_files = list(set(files) - set(base_dict.keys()))
@@ -302,6 +302,8 @@ def main():
 
             if added_cnt or updated_cnt or removed_cnt:
                 print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt)
+            else:
+                print 'Nothing to translate or add.'
 
             """
             Results
@@ -339,12 +341,11 @@ def main():
                     for key in tfiles[f]:
                         t_line_cnt += 1
                         # print key, ' = ', tfiles[f][key]
-
     print ''
     if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt:
         print 'New Translated Strings Total : {0}'.format(t_line_cnt)
         print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
     else:
-        print "Nothing to translate or add. All resources are synchronized."
+        print "All strings are already synchronized. Nothing to translate or add."
     return
