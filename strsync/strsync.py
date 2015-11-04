@@ -3,7 +3,7 @@
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
 from microsofttranslator import Translator
-import localizable
+import strsparser
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
 
@@ -12,6 +12,14 @@ def resolve_file_path(file):
 
 def join_path_all(target_dir, target_files):
     return map(lambda f: os.path.join(target_dir, f), target_files)
+
+def rget(dictionary, key):
+    items = []
+    if key in dictionary:
+        items.append(dictionary[key])
+    for dict_value in [value for value in dictionary.values() if isinstance(value, dict)]:
+        items += rget(dict_value, key)
+    return items
 
 def main():
     parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
@@ -115,7 +123,7 @@ def main():
         return [postprocessing_translate_str(r['TranslatedText']) for r in trans.translate_array(strs, lang)] if lang else strs
 
     def strings_obj_from_file(file):
-        return localizable.parse_strings(filename=file)
+        return strsparser.parse_strings(filename=file)
 
     def merge_two_dicts(x, y):
         '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -125,15 +133,29 @@ def main():
 
     # core function
     def insert_or_translate(target_file, lc):
+        #parse target file
+        target_kv = {}
+        target_error_lines = []
+        if not notexist_or_empty_file(target_file):
+            parsed_strings = strsparser.parse_strings(filename=target_file)
+            for item in parsed_strings:
+                k, v, e = item['key'], item['value'], item['error']
+                # line error
+                if e:
+                    target_error_lines.append(e)
+                if not target_error_lines:
+                    target_kv[k] = v
+
+        #parsing complete or return.
+        if target_error_lines:
+            print '(!) Syntax error - Skip'
+            return False, None, None, target_error_lines
+
+        #base
         base_content = base_dict[os.path.basename(target_file)]
         base_kv = {}
         for item in base_content:
             base_kv[item['key']] = item['value']
-
-        target_kv = {}
-        if not notexist_or_empty_file(target_file):
-            for item in localizable.parse_strings(filename=target_file):
-                target_kv[item['key']] = item['value']
 
         adding_keys = list((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(__FORCE_TRANSLATE__)))
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
@@ -145,7 +167,8 @@ def main():
         translated_kv = {};
         if len(adding_keys):
             print 'Translating...'
-            translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
+            translate_taget_keys = list(set(adding_keys) - set(target_error_lines.keys()))
+            translated_kv = dict(zip(translate_taget_keys, translate_ms([base_kv[k] for k in translate_taget_keys], lc)))
 
         updated_content = []
         for item in base_content:
@@ -157,11 +180,12 @@ def main():
             if k in adding_keys:
                 if k in translated_kv:
                     newitem['value'] = translated_kv[k]
-                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k])
                     newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
+                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k])
                 else:
-                    print '[Fail] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
-                    newitem['comment'] = 'Translate Failed: {0}'.format(base_kv[k])
+                    newitem['value'] = target_kv[k]
+                    newitem['comment'] = 'Translate failed from: {0}'.format(base_kv[k])
+                    print '[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
             #exists
             elif k in existing_keys:
                 newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
@@ -175,7 +199,7 @@ def main():
         if len(adding_keys) or len(removing_keys):
             print '(i) Changed Keys: Added {0}, Removed {1}'.format(len(adding_keys), len(removing_keys))
 
-        return len(adding_keys)>0 or len(removing_keys)>0, updated_content, translated_kv
+        return updated_content and (len(adding_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines
 
     def write_file(target_file, list_of_content):
         suc = False
@@ -255,7 +279,8 @@ def main():
                 'added_files' : [],
                 'updated_files' : [],
                 'skipped_files' : [],
-                'translated_files_lines' : []
+                'translated_files_lines' : {},
+                'error_lines_kv' : {}
             }
 
             if not supported_lang(lc):
@@ -274,7 +299,8 @@ def main():
             existing_files = join_path_all(dir, existing_files)
 
             added_cnt, updated_cnt, removed_cnt = 0, 0, 0
-            added_translations_num_of_files = {}
+            translated_files_lines = results_dict[lc]['translated_files_lines']
+            error_files = results_dict[lc]['error_lines_kv']
 
             #remove - file
             for removed_file in removed_files:
@@ -286,22 +312,30 @@ def main():
             for added_file in added_files:
                 print 'Adding File... {0}'.format(added_file)
                 create_file(added_file)
-                u, c, t = insert_or_translate(added_file, lc)
-                if u and write_file(added_file, c):
+                u, c, t, e = insert_or_translate(added_file, lc)
+                #error
+                if e:
+                    error_files[added_file] = e
+                #normal
+                elif u and write_file(added_file, c):
                     added_cnt+=1
-                    added_translations_num_of_files[added_file] = t
+                    translated_files_lines[added_file] = t
 
             #exist - lookup lines
             for ext_file in existing_files:
-                u, c, t = insert_or_translate(ext_file, lc)
-                if u:
+                u, c, t, e = insert_or_translate(ext_file, lc)
+                #error
+                if e:
+                    error_files[ext_file] = e
+                #normal
+                elif u:
                     print 'Updating File... {0}'.format(ext_file)
                     if write_file(ext_file, c):
                         updated_cnt=+1
-                        added_translations_num_of_files[ext_file] = t
+                        translated_files_lines[ext_file] = t
 
-            if added_cnt or updated_cnt or removed_cnt:
-                print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}'.format(added_cnt, updated_cnt, removed_cnt)
+            if added_cnt or updated_cnt or removed_cnt or error_files:
+                print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}, Error {3}'.format(added_cnt, updated_cnt, removed_cnt, len(error_files.keys()))
             else:
                 print 'Nothing to translate or add.'
 
@@ -309,9 +343,10 @@ def main():
             Results
             """
             results_dict[lc]['deleted_files'] = removed_files
-            results_dict[lc]['added_files'] = list(set(added_files) & set(added_translations_num_of_files.keys()))
-            results_dict[lc]['updated_files'] = list(set(existing_files) & set(added_translations_num_of_files.keys()))
-            results_dict[lc]['translated_files_lines'] = added_translations_num_of_files
+            results_dict[lc]['added_files'] = list(set(added_files) & set(translated_files_lines.keys()))
+            results_dict[lc]['updated_files'] = list(set(existing_files) & set(translated_files_lines.keys()))
+            results_dict[lc]['error_lines_kv'] = error_files
+            print results_dict[lc]['error_lines_kv']
 
     # print total Results
     print ''
@@ -341,11 +376,23 @@ def main():
                     for key in tfiles[f]:
                         t_line_cnt += 1
                         # print key, ' = ', tfiles[f][key]
+
     print ''
-    if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt:
+    found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
+
+    if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt or found_warining:
         print 'New Translated Strings Total : {0}'.format(t_line_cnt)
         print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
+
+        if found_warining:
+            print '\n[!!] WARNING: Found strings that contains the syntax error. Please confirm.'
+            for a in found_warining:
+                for k in a:
+                    print 'at', k
+                    for i in a[k]:
+                        print ' ', i
     else:
         print "All strings are already synchronized. Nothing to translate or add."
+
     return
