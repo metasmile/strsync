@@ -1,5 +1,9 @@
-strsync
-========
+.. contents::
+   :depth: 3
+..
+
+.. figure:: https://cdn.rawgit.com/metasmile/strsync/master/logo.svg
+   :alt: 
 
 Automatically translate and synchronize '.strings' files from defined
 base language.
@@ -14,8 +18,36 @@ If you are running, other localized resources will have exactly the same
 key with automatically translated strings. Of course, String on the key
 that already exists will not be modified at all.
 
+.. figure:: https://github.com/metasmile/metasmile.github.io/blob/master/static/strsync/desc1.png
+   :alt: 
+
+Requirements
+============
+
+Install
+-------
+
+::
+
+    pip install strsync
+
+Getting your client id/secret id to use Microsoft Translation API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Try accordance with `this
+explanation <https://msdn.microsoft.com/en-us/library/mt146806.aspx>`__
+
+Update Python SSL packages if needed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+this is not required for python-2.7.9+
+
+.. code:: shell
+
+    pip install requests[security]
+
 Usage
------
+=====
 
 Naturally, this tool follow `standard ISO639 1~2
 codes <http://www.loc.gov/standards/iso639-2/php/English_list.php>`__ or
@@ -55,7 +87,7 @@ or `csv file <https://gist.github.com/pjc-is/49971b36db38fdeae6fc>`__
                             Keys in the strings to update and translate by force.
 
 Examples to use
-~~~~~~~~~~~~~~~
+---------------
 
 ::
 
@@ -79,43 +111,20 @@ Forcefully translate and update by specific keys you want.
 
     $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
 
-Requirements
-------------
-
-Install
-~~~~~~~
+When you want to accept the values in the 'Base'.
 
 ::
 
-    pip install strsync
+    $ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode
 
-Using Microsoft Translation API
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    #before
+    "flashmode" = "وضع الفلاش";
+    "flashmode.auto" = "السيارات";
+    "flashmode.on" = "على";
+    "autoenhance" = "تعزيز السيارات";
 
-This tool using `Microsoft-Translator-Python-API, wrote by
-OpenLabs <https://github.com/openlabs/Microsoft-Translator-Python-API>`__.
-
-So you should do several processes by requirements.
-
-Getting your client id/secret id
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Try accordance with `this
-explanation <https://github.com/openlabs/Microsoft-Translator-Python-API#registering-your-application>`__
-
-Update python SSL packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-this is not required for python-2.7.9+
-
-.. code:: shell
-
-    pip install requests[security]
-
-This installs following extra packages:
-
-::
-
-    pyOpenSSL
-    ndg-httpsclient
-    pyasn1
+    #after
+    "flashmode" = "Flash Mode";
+    "flashmode.auto" = "السيارات";
+    "flashmode.on" = "على";
+    "autoenhance" = "Auto-Enhance";
