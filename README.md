@@ -81,7 +81,7 @@ $ strsync ./myXcodeProj/Resources/Localizations -c clien_idXXXX -s clien_secretX
 
 Forcefully translate and update by specific keys you want.
 ```
-$ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
+$ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo "Key name which contains white space"
 ```
 
 When you want to accept the values in the 'Base'.
