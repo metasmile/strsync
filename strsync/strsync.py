@@ -28,6 +28,7 @@ def main():
     parser.add_argument('-c','--client-id', help='Client ID for MS Translation API', required=True)
     parser.add_argument('-s','--client-secret', help='Client Secret key for MS Translation API', required=True)
     parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force.', required=False, nargs='+')
+    parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', required=False, nargs='+')
     parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='.', nargs='?')
     args = vars(parser.parse_args())
 
@@ -41,7 +42,8 @@ def main():
     __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
     __EXCLUDING_LANGS__ = args['excluding_lang_names'] or []
-    __FORCE_TRANSLATE__ = args['force_translate_keys'] or []
+    __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys'] or []
+    __KEYS_FOLLOW_BASE__ = args['following_base_keys'] or []
     __BASE_RESOUCE_DIR__ = None
 
     __LITERNAL_FORMAT__ = "%@"
@@ -167,9 +169,10 @@ def main():
         for item in base_content:
             base_kv[item['key']] = item['value']
 
-        adding_keys = list((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(__FORCE_TRANSLATE__)))
+        adding_keys = list(((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(__KEYS_FORCE_TRANSLATE__))) - set(__KEYS_FOLLOW_BASE__))
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
         existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
+        updated_keys = []
 
         """
         perform translate
@@ -197,7 +200,15 @@ def main():
                     print '[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
             #exists
             elif k in existing_keys:
-                newitem['value'] = target_kv[k] if k in target_kv else base_kv[k]
+                target_value = target_kv.get(k)
+                if k in __KEYS_FOLLOW_BASE__:
+                    newitem['value'] = base_kv[k]
+                    if target_value != base_kv[k]:
+                        updated_keys.append(k)
+                else:
+                    newitem['value'] = target_value or base_kv[k]
+                    if not target_value:
+                        updated_keys.append(k)
 
             updated_content.append(newitem)
 
@@ -206,9 +217,9 @@ def main():
             print '[Remove]', k
 
         if len(adding_keys) or len(removing_keys):
-            print '(i) Changed Keys: Added {0}, Removed {1}'.format(len(adding_keys), len(removing_keys))
+            print '(i) Changed Keys: Added {0}, Updated {1}, Removed {2}'.format(len(adding_keys), len(updated_keys), len(removing_keys))
 
-        return updated_content and (len(adding_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines
+        return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines
 
     def write_file(target_file, list_of_content):
         suc = False
@@ -354,8 +365,9 @@ def main():
             results_dict[lc]['deleted_files'] = removed_files
             results_dict[lc]['added_files'] = list(set(added_files) & set(translated_files_lines.keys()))
             results_dict[lc]['updated_files'] = list(set(existing_files) & set(translated_files_lines.keys()))
+            if error_files:
+                print error_files
             results_dict[lc]['error_lines_kv'] = error_files
-            print results_dict[lc]['error_lines_kv']
 
     # print total Results
     print ''
