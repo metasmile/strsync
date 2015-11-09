@@ -95,7 +95,7 @@ $ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode
 "autoenhance" = "تعزيز السيارات";
 
 #after
-"flashmode" = "Flash Modeش";
+"flashmode" = "Flash Mode";
 "flashmode.auto" = "السيارات";
 "flashmode.on" = "على";
 "autoenhance" = "Auto-Enhance";
