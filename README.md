@@ -86,7 +86,7 @@ $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
 
 When you want to accept the values in the 'Base'.
 ```
-$ strsync -c clien_idXXXX -s clien_secretXXXX -fb Common.OK Common.Undo
+$ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode
 
 #before
 "flashmode" = "وضع الفلاش";
@@ -95,10 +95,10 @@ $ strsync -c clien_idXXXX -s clien_secretXXXX -fb Common.OK Common.Undo
 "autoenhance" = "تعزيز السيارات";
 
 #after
-"autoenhance" = "Auto-Enhance";
-"flashmode" = "وضع الفلاش";
+"flashmode" = "Flash Modeش";
 "flashmode.auto" = "السيارات";
 "flashmode.on" = "على";
+"autoenhance" = "Auto-Enhance";
 ```
 
 
