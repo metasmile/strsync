@@ -1,6 +1,4 @@
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo.svg)
-https://github.com/metasmile/strsync/edit/master/README.md#
-
 
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync) 
 [![PyPI Downloads](https://img.shields.io/pypi/dm/strsync.svg)](https://pypi.python.org/pypi/strsync/1.0.1)
