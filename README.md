@@ -64,6 +64,8 @@ optional arguments:
                         Client Secret key for MS Translation API
   -f [FORCE_TRANSLATE_KEYS ...], --force-translate-keys [FORCE_TRANSLATE_KEYS ...]
                         Keys in the strings to update and translate by force.
+  -fb [FOLLOWING_BASE_KEYS ...], --following-base-keys [FOLLOWING_BASE_KEYS ...]
+                        Keys in the strings to follow from "Base".
 ```
 
 ### Examples to use
