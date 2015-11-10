@@ -1,6 +1,11 @@
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo.svg)
+https://github.com/metasmile/strsync/edit/master/README.md#
 
-[![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync) [![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master) [![PyPI version](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
+
+[![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync) 
+[![PyPI Downloads](https://img.shields.io/pypi/dm/strsync.svg)](https://pypi.python.org/pypi/strsync/1.0.1)
+[![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master) 
+[![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
 
 Automatically translate and synchronize '.strings' files from defined base language.
 
