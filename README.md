@@ -1,5 +1,7 @@
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo.svg)
 
+[![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync) [![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master)
+
 Automatically translate and synchronize '.strings' files from defined base language.
 
 The basic concept of this tool is simple file name based one-way synchronizer.
