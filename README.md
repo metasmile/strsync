@@ -1,7 +1,7 @@
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
-[![PyPI Downloads](https://img.shields.io/pypi/dm/strsync.svg)](https://pypi.python.org/pypi/strsync/1.0.1)
+[![PyPI Downloads](https://img.shields.io/pypi/dw/strsync.svg)](https://pypi.python.org/pypi/strsync/1.0.1)
 [![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master)
 [![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
 
