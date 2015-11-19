@@ -1,5 +1,6 @@
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
+[![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/vsouza/awesome-ios#tools)
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
 [![PyPI Downloads](https://img.shields.io/pypi/dw/strsync.svg)](https://pypi.python.org/pypi/strsync/1.0.1)
 [![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master)
@@ -8,7 +9,7 @@
 Automatically translate and synchronize '.strings' files from defined base language.
 
 The basic concept of this tool is simple file name based one-way synchronizer.
-While the actual translation work, My biggest desire was to just fill an empty strings easily.
+While the actual translation work, My biggest desire was to just fill an empty strings quickly.
 In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc..
 
 If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, String on the key that already exists will not be modified at all.
