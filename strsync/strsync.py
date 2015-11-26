@@ -255,7 +255,7 @@ def main():
     def resolve_file_names(target_file_names):
         return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
 
-    base_dict = None
+    base_dict = {}
     results_dict = {}
 
     # Get Base Language Specs
@@ -264,7 +264,6 @@ def main():
 
     for dir, subdirs, files in walked:
         if os.path.basename(dir)==__BASE_RESOUCE_DIR__:
-            base_dict = {}
             for _file in resolve_file_names(files):
                 f = os.path.join(dir, _file)
                 if notexist_or_empty_file(f):
