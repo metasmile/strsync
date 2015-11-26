@@ -92,6 +92,11 @@ Forcefully translate and update by specific keys you want.
 $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo "Key name which contains white space"
 ```
 
+Forcefully translate and update by All keys.
+```
+$ strsync -c clien_idXXXX -s clien_secretXXXX -f  (input nothing)
+```
+
 When you want to accept the values in the 'Base'.
 ```
 $ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode

@@ -3,7 +3,7 @@
 ..
 
 .. figure:: https://cdn.rawgit.com/metasmile/strsync/master/logo.svg
-   :alt: 
+   :alt:
 
 Automatically translate and synchronize '.strings' files from defined
 base language.
@@ -19,7 +19,7 @@ key with automatically translated strings. Of course, String on the key
 that already exists will not be modified at all.
 
 .. figure:: https://github.com/metasmile/metasmile.github.io/blob/master/static/strsync/desc1.png
-   :alt: 
+   :alt:
 
 Requirements
 ============
@@ -110,6 +110,14 @@ Forcefully translate and update by specific keys you want.
 ::
 
     $ strsync -c clien_idXXXX -s clien_secretXXXX -f Common.OK Common.Undo
+
+
+Forcefully translate and update by specific keys you want.
+
+::
+
+    $ strsync -c clien_idXXXX -s clien_secretXXXX -f   (input nothing.)
+
 
 When you want to accept the values in the 'Base'.
 
