@@ -43,6 +43,7 @@ def main():
     __BASE_LANG__ = args['base_lang_name']
     __EXCLUDING_LANGS__ = args['excluding_lang_names'] or []
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
+    __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
     __KEYS_FOLLOW_BASE__ = args['following_base_keys'] or []
     __BASE_RESOUCE_DIR__ = None
 
@@ -169,7 +170,8 @@ def main():
         for item in base_content:
             base_kv[item['key']] = item['value']
 
-        adding_keys = list(((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(__KEYS_FORCE_TRANSLATE__ or base_kv.keys()))) - set(__KEYS_FOLLOW_BASE__))
+        force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
+        adding_keys = list(((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) - set(__KEYS_FOLLOW_BASE__))
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
         existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
         updated_keys = []
