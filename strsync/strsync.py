@@ -24,11 +24,11 @@ def rget(dictionary, key):
 def main():
     parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
     parser.add_argument('-b','--base-lang-name', help='A base(or source) localizable resource name.(default=\'Base\'), (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default='Base', required=False)
-    parser.add_argument('-x','--excluding-lang-names', type=str, help='A localizable resource name that you want to exclude. (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', required=False, nargs='+')
+    parser.add_argument('-x','--excluding-lang-names', type=str, help='A localizable resource name that you want to exclude. (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default=[], required=False, nargs='+')
     parser.add_argument('-c','--client-id', help='Client ID for MS Translation API', required=True)
     parser.add_argument('-s','--client-secret', help='Client Secret key for MS Translation API', required=True)
-    parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force. (input nothing for all keys.)', required=False, nargs='*')
-    parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', required=False, nargs='+')
+    parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force. (input nothing for all keys.)', default=[], required=False, nargs='*')
+    parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', default=[], required=False, nargs='+')
     parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='./', nargs='?')
     args = vars(parser.parse_args())
 
@@ -41,10 +41,10 @@ def main():
     __FILE_SUFFIX__ = ".strings"
     __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
-    __EXCLUDING_LANGS__ = args['excluding_lang_names'] or []
+    __EXCLUDING_LANGS__ = args['excluding_lang_names']
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
     __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
-    __KEYS_FOLLOW_BASE__ = args['following_base_keys'] or []
+    __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __BASE_RESOUCE_DIR__ = None
 
     __LITERNAL_FORMAT__ = "%@"
