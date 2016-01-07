@@ -1,3 +1,5 @@
+[AD] Elie - Your next mobile photography assistant. http://elie.camera
+
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/vsouza/awesome-ios#tools)
