@@ -5,7 +5,6 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/vsouza/awesome-ios#tools)
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/strsync.svg)](https://pypi.python.org/pypi/strsync)
-[![Code Health](https://landscape.io/github/metasmile/strsync/master/landscape.svg?style=flat)](https://landscape.io/github/metasmile/strsync/master)
 [![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
 
 Automatically translate and synchronize '.strings' files from defined base language.
