@@ -105,5 +105,6 @@ def parse_strings(content="", filename=None):
             end = m.end()
         end = end_
         key = _unescape_key(key)
-        stringset.append({'key': key, 'value': _unescape(value), 'comment': comment, 'error': None})
+        ''' _unescape(value) // don't needed this. becase \n is just \n in .strings '''
+        stringset.append({'key': key, 'value': value, 'comment': comment, 'error': None})
     return stringset
