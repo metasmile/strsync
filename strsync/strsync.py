@@ -97,6 +97,9 @@ def main():
         cfile.write(codes)
         cfile.close()
     print '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
+    
+    #
+    global_result_logs = {}
 
     # methods
     def supported_lang(code):
@@ -181,7 +184,7 @@ def main():
         """
         perform translate
         """
-        translated_kv = {};
+        translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
             translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
@@ -211,6 +214,10 @@ def main():
                         print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
                         newitem['value'] = base_kv[k]
                         updated_keys.append(k)
+                        
+                        if not lc in global_result_logs:                            
+                            global_result_logs[lc] = {}
+                        global_result_logs[lc][k] = (target_value, base_kv[k])
                     else:
                         newitem['value'] = target_value or base_kv[k]
                         
@@ -410,6 +417,12 @@ def main():
                     for key in tfiles[f]:
                         t_line_cnt += 1
                         # print key, ' = ', tfiles[f][key]
+          
+    for lc in global_result_logs.keys():
+        print lc
+        for t in global_result_logs[lc].keys():
+            o, b = global_result_logs[lc][t]
+            print o.decode('utf-8'), ' -> ', b
 
     print ''
     found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
