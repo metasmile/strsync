@@ -70,6 +70,9 @@ optional arguments:
                         Keys in the strings to update and translate by force.
   -fb [FOLLOWING_BASE_KEYS ...], --following-base-keys [FOLLOWING_BASE_KEYS ...]
                         Keys in the strings to follow from "Base".
+  -fbl [FOLLOWING_BASE_KEYS_IF_LENGTH_LONGER ...], --following-base-keys-if-length-longer
+                        Keys in the strings to follow from "Base" 
+                        if its length longer than length of "Base" value.
 ```
 
 ### Examples to use
