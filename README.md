@@ -10,7 +10,7 @@ Automatically translate and synchronize '.strings' files from defined base langu
 
 The basic concept of this python CLI tool is very simple file name based one-way synchronizer. If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
 
-While the actual i18n work, my biggest desire was to just quickly fill many empty strings first. This tool has been made for that purpose. In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc..  And yes, all translation results of this tool is just based on the Microsoft Translator. So In case of more complex, inspections by human will be required for exact results. But you may save very much of your time! 
+While the actual i18n work, my biggest desire was to just quickly fill many empty strings first. This tool has been made for that purpose. In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc.. As you know all translation results of this tool is just based on the Microsoft Translator. So In case of more complex, inspections by human will be required for exact results. But you may save very much of your time! 
 
 ![](https://github.com/metasmile/strsync/blob/master/structure.png)
 
