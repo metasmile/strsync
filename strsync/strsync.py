@@ -153,16 +153,18 @@ def main():
     def insert_or_translate(target_file, lc):
         #parse target file
         target_kv = {}
+        target_kc = {}
         target_error_lines = []
         if not notexist_or_empty_file(target_file):
             parsed_strings = strsparser.parse_strings(filename=target_file)
             for item in parsed_strings:
-                k, v, e = item['key'], item['value'], item['error']
+                k, e = item['key'], item['error']
                 # line error
                 if e:
                     target_error_lines.append(e)
                 if not target_error_lines:
-                    target_kv[k] = v
+                    target_kv[k] = item['value']
+                    target_kc[k] = item['comment']
 
         #parsing complete or return.
         if target_error_lines:
@@ -172,8 +174,14 @@ def main():
         #base
         base_content = base_dict[os.path.basename(target_file)]
         base_kv = {}
+        base_kc = {}
         for item in base_content:
-            base_kv[item['key']] = item['value']
+            k, e = item['key'], item['error']
+            # line error
+            if e:
+                print '(!) WARNING : Syntax error from Base -> ', k, ':' , e
+            base_kv[k] = item['value']
+            base_kc[k] = item['comment']
 
         force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
         adding_keys = list(((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) - set(__KEYS_FOLLOW_BASE__))
@@ -208,11 +216,13 @@ def main():
             #exists
             elif k in existing_keys:
                 target_value = target_kv.get(k)
+                target_comment = target_kc.get(k) 
                 
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
                     if target_value != base_kv[k] and len(target_value) > len(base_kv[k]):
                         print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
                         newitem['value'] = base_kv[k]
+                        newitem['comment'] = base_kc[k]
                         updated_keys.append(k)
                         
                         if not lc in global_result_logs:                            
@@ -220,15 +230,18 @@ def main():
                         global_result_logs[lc][k] = (target_value, base_kv[k])
                     else:
                         newitem['value'] = target_value or base_kv[k]
+                        newitem['comment'] = target_comment or base_kc[k]
                         
                 elif k in __KEYS_FOLLOW_BASE__:
                     newitem['value'] = base_kv[k]
+                    newitem['comment'] = base_kc[k]
                     if target_value != base_kv[k]:
                         updated_keys.append(k)
                         
                 else:
                     newitem['value'] = target_value or base_kv[k]
-                    if not target_value:
+                    newitem['comment'] = target_comment or base_kc[k]
+                    if not target_value or (target_comment and target_comment != base_kc[k]):
                         updated_keys.append(k)
 
             updated_content.append(newitem)
