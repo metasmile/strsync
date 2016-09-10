@@ -205,8 +205,8 @@ def main():
             newitem = dict.fromkeys(item.keys())
             newitem['key'] = k
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
-            newitem['comment'] = target_comment or base_kc[k] 
-            needs_update_comment = not __IGNORE_COMMENTS__ and not target_comment and base_kc[k]
+            newitem['comment'] = target_comment if __IGNORE_COMMENTS__ else target_comment or base_kc[k]
+            needs_update_comment = False if __IGNORE_COMMENTS__ else not target_comment and base_kc[k]
             
             #added
             if k in adding_keys:
