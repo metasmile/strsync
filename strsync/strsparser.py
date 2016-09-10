@@ -88,8 +88,8 @@ def parse_strings(content="", filename=None):
         start = i.start('line')
         end_ = i.end()
         key = i.group('key')
-        comment = i.group('comment') or ''
-
+        comment = i.group('comment') or None
+                
         if not key:
             key = i.group('property')
         value = i.group('value')

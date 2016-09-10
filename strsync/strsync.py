@@ -202,27 +202,28 @@ def main():
             k = item['key']
             newitem = dict.fromkeys(item.keys())
             newitem['key'] = k
-
+            target_value, target_comment = target_kv.get(k), target_kc.get(k)
+            newitem['comment'] = target_comment or base_kc[k] 
+            
             #added
             if k in adding_keys:
                 if k in translated_kv:
                     newitem['value'] = translated_kv[k]
-                    newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
+                    if not newitem['comment']:
+                        newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
                     print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k])
                 else:
                     newitem['value'] = target_kv[k]
-                    newitem['comment'] = 'Translate failed from: {0}'.format(base_kv[k])
+                    if not newitem['comment']:
+                        newitem['comment'] = 'Translate failed from: {0}'.format(base_kv[k])
                     print '[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
             #exists
             elif k in existing_keys:
-                target_value = target_kv.get(k)
-                target_comment = target_kc.get(k) 
                 
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
                     if target_value != base_kv[k] and len(target_value) > len(base_kv[k]):
                         print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
                         newitem['value'] = base_kv[k]
-                        newitem['comment'] = base_kc[k]
                         updated_keys.append(k)
                         
                         if not lc in global_result_logs:                            
@@ -230,18 +231,15 @@ def main():
                         global_result_logs[lc][k] = (target_value, base_kv[k])
                     else:
                         newitem['value'] = target_value or base_kv[k]
-                        newitem['comment'] = target_comment or base_kc[k]
                         
                 elif k in __KEYS_FOLLOW_BASE__:
                     newitem['value'] = base_kv[k]
-                    newitem['comment'] = base_kc[k]
-                    if target_value != base_kv[k]:
+                    if target_value != base_kv[k] or (not target_comment and base_kc[k]):
                         updated_keys.append(k)
                         
                 else:
                     newitem['value'] = target_value or base_kv[k]
-                    newitem['comment'] = target_comment or base_kc[k]
-                    if not target_value or (target_comment and target_comment != base_kc[k]):
+                    if not target_value or (not target_comment and base_kc[k]):
                         updated_keys.append(k)
 
             updated_content.append(newitem)
@@ -262,7 +260,7 @@ def main():
             contents = ''
             for content in list_of_content:
                 if content['comment']:
-                    contents += '/* {0} */'.format(content['comment']) + '\n'
+                    contents += '/*{0}*/'.format(content['comment']) + '\n'
                 contents += '"{0}" = "{1}";'.format(content['key'], content['value']) + '\n'
             f.write(contents)
             suc = True
