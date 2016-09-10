@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name="strsync",
-    version="1.0.5",
+    version="1.0.6",
     packages=[
         'strsync',
     ],
