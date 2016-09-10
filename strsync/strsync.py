@@ -30,6 +30,7 @@ def main():
     parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force. (input nothing for all keys.)', default=[], required=False, nargs='*')
     parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', default=[], required=False, nargs='+')
     parser.add_argument('-fbl','--following-base-keys-if-length-longer', type=str, help='Keys in the strings to follow from "Base" if its length longer than length of "Base" value.', default=[], required=False, nargs='+')
+    parser.add_argument('-ic','--ignore-comments', help='Allows to ignore comment synchronization.', default=None, required=False, nargs='*')
     parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='./', nargs='?')
     args = vars(parser.parse_args())
 
@@ -47,6 +48,7 @@ def main():
     __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
+    __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
     __BASE_RESOUCE_DIR__ = None
 
     __LITERNAL_FORMAT__ = "%@"
@@ -204,6 +206,7 @@ def main():
             newitem['key'] = k
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
             newitem['comment'] = target_comment or base_kc[k] 
+            needs_update_comment = not __IGNORE_COMMENTS__ and not target_comment and base_kc[k]
             
             #added
             if k in adding_keys:
@@ -221,7 +224,7 @@ def main():
             elif k in existing_keys:
                 
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
-                    if target_value != base_kv[k] and len(target_value) > len(base_kv[k]):
+                    if target_value != base_kv[k] and len(target_value) > len(base_kv[k]) or needs_update_comment:
                         print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
                         newitem['value'] = base_kv[k]
                         updated_keys.append(k)
@@ -234,12 +237,12 @@ def main():
                         
                 elif k in __KEYS_FOLLOW_BASE__:
                     newitem['value'] = base_kv[k]
-                    if target_value != base_kv[k] or (not target_comment and base_kc[k]):
+                    if target_value != base_kv[k] or needs_update_comment:
                         updated_keys.append(k)
                         
                 else:
                     newitem['value'] = target_value or base_kv[k]
-                    if not target_value or (not target_comment and base_kc[k]):
+                    if not target_value or needs_update_comment:
                         updated_keys.append(k)
 
             updated_content.append(newitem)
