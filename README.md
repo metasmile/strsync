@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
 [![Stories in Ready](https://badge.waffle.io/metasmile/strsync.svg?label=ready&title=Tasks In Ready)](http://waffle.io/metasmile/strsync)
 
-Automatically translate and synchronize '.strings' files from defined base language.
+Automatically, blazingly fast translate and synchronize '.strings' files from defined base language.
 
 The basic concept of this python CLI tool is very simple file name based one-way synchronizer. If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
 
