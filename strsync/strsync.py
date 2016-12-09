@@ -32,6 +32,7 @@ def main():
     parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', default=[], required=False, nargs='+')
     parser.add_argument('-fbl','--following-base-keys-if-length-longer', type=str, help='Keys in the strings to follow from "Base" if its length longer than length of "Base" value.', default=[], required=False, nargs='+')
     parser.add_argument('-ic','--ignore-comments', help='Allows to ignore comment synchronization.', default=None, required=False, nargs='*')
+    parser.add_argument('-v','--verify-results', help='Verify translated results via reversed results', default=None, required=False, nargs='*')
     parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='./', nargs='?')
     args = vars(parser.parse_args())
 
@@ -50,6 +51,7 @@ def main():
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
+    __VERIFY_TRANS_RESULTS__ = args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
 
     __LITERNAL_FORMAT__ = "%@"
@@ -202,11 +204,12 @@ def main():
             print 'Translating...'
             translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
 
-            print 'Reversing results and matching...'
-            reversed_translated_kv = dict(zip(adding_keys, translate_ms(translated_kv.values(), 'en')))
-            for bk in adding_keys:
-                if bk in reversed_translated_kv:
-                    reversed_matched_ratio_kv[bk] = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
+            if __VERIFY_TRANS_RESULTS__:
+                print 'Reversing results and matching...'
+                reversed_translated_kv = dict(zip(adding_keys, translate_ms(translated_kv.values(), 'en')))
+                for bk in adding_keys:
+                    if bk in reversed_translated_kv:
+                        reversed_matched_ratio_kv[bk] = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
 
         updated_content = []
         for item in base_content:
