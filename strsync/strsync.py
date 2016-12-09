@@ -493,7 +493,7 @@ def main():
                         print ' ', i
 
         #VERIFY FAILED
-        if found_verify_failed or len(found_verify_failed)>0:
+        if found_verify_failed and len(found_verify_failed):
             print '\n[i] VERIFICATION FAILED: Found strings that added successfully but it was failed for verification from reversed results. Please confirm.'
             for key in found_verify_failed:
                 print key
