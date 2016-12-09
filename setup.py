@@ -43,5 +43,6 @@ setup(
         'chardet',
         'requests >= 1.2.3',
         'six',
+        'fuzzywuzzy'
     ]
 )

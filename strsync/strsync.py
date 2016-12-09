@@ -6,6 +6,7 @@ from microsofttranslator import Translator
 import strsparser
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
+from fuzzywuzzy import fuzz
 
 def resolve_file_path(file):
     return os.path.join(os.path.dirname(__file__), file)
@@ -99,7 +100,7 @@ def main():
         cfile.write(codes)
         cfile.close()
     print '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
-    
+
     #
     global_result_logs = {}
 
@@ -195,9 +196,17 @@ def main():
         perform translate
         """
         translated_kv = {}
+        reversed_matched_ratio_kv = {}
+        reversed_translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
             translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
+
+            print 'Reversing results and matching...'
+            reversed_translated_kv = dict(zip(adding_keys, translate_ms(translated_kv.values(), 'en')))
+            for bk in adding_keys:
+                if bk in reversed_translated_kv:
+                    reversed_matched_ratio_kv[bk] = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
 
         updated_content = []
         for item in base_content:
@@ -207,14 +216,19 @@ def main():
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
             newitem['comment'] = target_comment if __IGNORE_COMMENTS__ else target_comment or base_kc[k]
             needs_update_comment = False if __IGNORE_COMMENTS__ else not target_comment and base_kc[k]
-            
+
             #added
             if k in adding_keys:
                 if k in translated_kv:
                     newitem['value'] = translated_kv[k]
                     if not newitem['comment']:
                         newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
-                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k])
+
+                    reversed_matched_msg = ''
+                    if k in reversed_matched_ratio_kv:
+                        reversed_matched_msg = "( {} % Matched: \'{}\' <- \'{}\' <- \'{}\' )".format(reversed_matched_ratio_kv[k], reversed_translated_kv[k], newitem['value'], base_kv[k])
+
+                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k]), reversed_matched_msg
                 else:
                     newitem['value'] = target_kv[k]
                     if not newitem['comment']:
@@ -222,24 +236,24 @@ def main():
                     print '[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
             #exists
             elif k in existing_keys:
-                
+
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
                     if target_value != base_kv[k] and len(target_value) > len(base_kv[k]) or needs_update_comment:
                         print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
                         newitem['value'] = base_kv[k]
                         updated_keys.append(k)
-                        
-                        if not lc in global_result_logs:                            
+
+                        if not lc in global_result_logs:
                             global_result_logs[lc] = {}
                         global_result_logs[lc][k] = (target_value, base_kv[k])
                     else:
                         newitem['value'] = target_value or base_kv[k]
-                        
+
                 elif k in __KEYS_FOLLOW_BASE__:
                     newitem['value'] = base_kv[k]
                     if target_value != base_kv[k] or needs_update_comment:
                         updated_keys.append(k)
-                        
+
                 else:
                     newitem['value'] = target_value or base_kv[k]
                     if not target_value or needs_update_comment:
@@ -431,7 +445,7 @@ def main():
                     for key in tfiles[f]:
                         t_line_cnt += 1
                         # print key, ' = ', tfiles[f][key]
-          
+
     for lc in global_result_logs.keys():
         print lc
         for t in global_result_logs[lc].keys():
