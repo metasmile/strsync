@@ -271,7 +271,13 @@ def main():
         if len(adding_keys) or len(removing_keys):
             print '(i) Changed Keys: Added {0}, Updated {1}, Removed {2}'.format(len(adding_keys), len(updated_keys), len(removing_keys))
 
-        return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines
+        #check verification failed items
+        target_verify_failed_keys = None
+        if len(reversed_matched_ratio_kv):
+            target_verify_failed_keys = filter(lambda k: reversed_matched_ratio_kv[k] < 1, reversed_matched_ratio_kv)
+
+        print target_verify_failed_keys,reversed_matched_ratio_kv
+        return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines, target_verify_failed_keys
 
     def write_file(target_file, list_of_content):
         suc = False
@@ -351,7 +357,8 @@ def main():
                 'updated_files' : [],
                 'skipped_files' : [],
                 'translated_files_lines' : {},
-                'error_lines_kv' : {}
+                'error_lines_kv' : {},
+                'verify_failed' : []
             }
 
             if not supported_lang(lc):
@@ -383,10 +390,13 @@ def main():
             for added_file in added_files:
                 print 'Adding File... {0}'.format(added_file)
                 create_file(added_file)
-                u, c, t, e = insert_or_translate(added_file, lc)
+                u, c, t, e, m = insert_or_translate(added_file, lc)
                 #error
                 if e:
                     error_files[added_file] = e
+                #verify failed
+                if len(m):
+                    results_dict[lc]['verify_failed'] += m
                 #normal
                 elif u and write_file(added_file, c):
                     added_cnt+=1
@@ -394,7 +404,7 @@ def main():
 
             #exist - lookup lines
             for ext_file in existing_files:
-                u, c, t, e = insert_or_translate(ext_file, lc)
+                u, c, t, e, m = insert_or_translate(ext_file, lc)
                 #error
                 if e:
                     error_files[ext_file] = e
@@ -422,8 +432,15 @@ def main():
 
     # print total Results
     print ''
-    t_file_cnt, t_line_cnt = 0, 0
-    file_add_cnt, file_remove_cnt, file_update_cnt, file_skip_cnt = 0,0,0,0
+    t_file_cnt = \
+    t_line_cnt = \
+    file_add_cnt = \
+    file_add_cnt = \
+    file_remove_cnt = \
+    file_update_cnt = \
+    file_skip_cnt = \
+    verify_failed_cnt = \
+    0
 
     for lc in results_dict.keys():
         result_lc = results_dict[lc]
@@ -432,11 +449,13 @@ def main():
         file_remove_cnt += len(result_lc['deleted_files'])
         file_update_cnt += len(result_lc['updated_files'])
         file_skip_cnt += len(result_lc['skipped_files'])
+        verify_failed_cnt += len(result_lc['verify_failed'])
 
         for f in result_lc['added_files']: print 'Added',f
         for f in result_lc['deleted_files']: print 'Removed',f
         for f in result_lc['updated_files']: print 'Updated',f
         for f in result_lc['skipped_files']: print 'Skiped',f
+        for f in result_lc['verify_failed']: print 'Verify Failed',f
 
         tfiles = result_lc['translated_files_lines']
         if tfiles:
@@ -457,19 +476,28 @@ def main():
 
     print ''
     found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
+    found_verify_failed = result_lc['verify_failed']
 
     if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt or found_warining:
         print 'Total New Translated Strings : {0}'.format(t_line_cnt)
         print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
 
+        #WARN
         if found_warining:
-            print '\n[!!] WARNING: Found strings that contains the syntax error. Please confirm.'
+            print '\n[!] WARNING: Found strings that contains the syntax error. Please confirm.'
             for a in found_warining:
                 for k in a:
                     print 'at', k
                     for i in a[k]:
                         print ' ', i
+
+        #VERIFY FAILED
+        if found_verify_failed or len(found_verify_failed)>0:
+            print '\n[i] VERIFICATION FAILED: Found strings that added successfully but it was failed for verification from reversed results. Please confirm.'
+            for key in found_verify_failed:
+                print key
+
     else:
         print "All strings are already synchronized. Nothing to translate or add."
 
