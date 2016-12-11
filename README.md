@@ -74,6 +74,11 @@ optional arguments:
                         if its length longer than length of "Base" value.
   -ic [IGNORE_COMMENTS ...], --ignore-comments
                         Allows to ignore comment synchronization.
+                        
+  -v, --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
+                        Verify translated results via reversed results
+  -iuv, --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
+                        Allows to ignore unverified results when append them.
 ```
 
 ### Examples to use
@@ -116,4 +121,50 @@ $ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode
 "flashmode.auto" = "السيارات";
 "flashmode.on" = "على";
 "autoenhance" = "Auto-Enhance";
+```
+
+If you add an option **-v** or **--verify-results**, 
+String similarity of the reversed translation result for each languages will be displayed. 
+
+```
+$ strsync (...) -v
+
+el
+  Hi: Hi -> Γεια σου -> Hi, Matched: 100%
+fr-CA
+  Hi: Hi -> Salut -> Hello, Matched: 50%
+id
+  Hi: Hi -> Hai -> Two, Matched: 0%
+fr
+  Hi: Hi -> Salut -> Hello, Matched: 50%
+uk
+  Hi: Hi -> Привіт -> Hi, Matched: 100%
+hr
+  Hi: Hi -> Bok -> Book, Matched: 0%
+da
+  Hi: Hi -> Hej -> Hi, Matched: 100%
+ja
+  Hi: Hi -> こんにちは -> Hello, Matched: 50%
+he
+  Hi: Hi -> היי -> Hey, Matched: 50%
+ko
+  Hi: Hi -> 안녕 -> Hi, Matched: 100%
+sv
+  Hi: Hi -> Hej -> Hi, Matched: 100%
+es-MX
+  Hi: Hi -> Hola -> Hello, Matched: 50%
+sk
+  Hi: Hi -> ahoj -> Hi, Matched: 100%
+zh-CN
+  Hi: Hi -> 你好 -> How are you doing, Matched: 50%
+```
+
+or if you add **--ignore-unverified-results** *[Integer, Percentage (0~100) (default=0)]*,
+If the similarity of each reversed translation result is under the given value, that string will be skipped(ignored).
+
+ex)
+```
+$ strsync (...) --ignore-unverified-results 50 
+
+result: strings will be skipped if its text similarity from reversed translation result is under 50 
 ```
