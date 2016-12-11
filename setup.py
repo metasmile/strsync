@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name="strsync",
-    version="1.0.6",
+    version="1.1",
     packages=[
         'strsync',
     ],
@@ -43,5 +43,7 @@ setup(
         'chardet',
         'requests >= 1.2.3',
         'six',
+        'fuzzywuzzy',
+        'colorama'
     ]
 )

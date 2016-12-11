@@ -6,6 +6,10 @@ from microsofttranslator import Translator
 import strsparser
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
+from fuzzywuzzy import fuzz
+from colorama import init
+from colorama import Fore, Back, Style
+init(autoreset=True)
 
 def resolve_file_path(file):
     return os.path.join(os.path.dirname(__file__), file)
@@ -31,6 +35,8 @@ def main():
     parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', default=[], required=False, nargs='+')
     parser.add_argument('-fbl','--following-base-keys-if-length-longer', type=str, help='Keys in the strings to follow from "Base" if its length longer than length of "Base" value.', default=[], required=False, nargs='+')
     parser.add_argument('-ic','--ignore-comments', help='Allows to ignore comment synchronization.', default=None, required=False, nargs='*')
+    parser.add_argument('-v','--verify-results', help='Verify translated results via reversed results', default=None, required=False, nargs='*')
+    parser.add_argument('-iuv','--ignore-unverified-results', help='Allows to ignore unverified results when append them.', default=None, required=False, nargs='*')
     parser.add_argument('target path', help='Target localizable resource path. (root path of Base.lproj, default=./)', default='./', nargs='?')
     args = vars(parser.parse_args())
 
@@ -49,7 +55,12 @@ def main():
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
+    __IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'] is not None
+    __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'][0] if __IGNORE_UNVERIFIED_RESULTS__ and len(args['ignore_unverified_results']) else 0
+    __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
+    # sys.exit(0)
+    # return
 
     __LITERNAL_FORMAT__ = "%@"
     __LITERNAL_FORMAT_RE__ = re.compile(r"(%\s{1,}@)|(@\s{0,}%)")
@@ -68,9 +79,9 @@ def main():
     # setup Translator & langs
 
     # read ios langs
-    print '(i) Fetching supported locale codes for ios9 ...'
+    print Fore.WHITE + '(i) Fetching supported locale codes for ios9 ...' ,Style.RESET_ALL
     __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
-    print '(i) Supported numbers of locale code :', len(__IOS9_CODES__)
+    print Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__) ,Style.RESET_ALL
 
     __MS_CODE_ALIASES__ = {
         # MS API Supported : ios9 supported ISO639 1-2 codes
@@ -83,7 +94,7 @@ def main():
     }
 
     # read mst langs
-    print '(i) Fetching supported locales from Microsoft Translation API...'
+    print Fore.WHITE + '(i) Fetching supported locales from Microsoft Translation API...' ,Style.RESET_ALL
     trans = Translator(args['client_id'], args['client_secret'])
 
     __MS_LANG_FILE__ = resolve_file_path('lc_ms.cached.tsv')
@@ -98,8 +109,8 @@ def main():
             codes += code+'\n'
         cfile.write(codes)
         cfile.close()
-    print '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__)
-    
+    print Fore.WHITE + '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__) ,Style.RESET_ALL
+
     #
     global_result_logs = {}
 
@@ -195,9 +206,22 @@ def main():
         perform translate
         """
         translated_kv = {}
+        reversed_matched_ratio_kv = {}
+        reversed_translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
             translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
+
+            if __VERIFY_TRANS_RESULTS__:
+                print 'Reversing results and matching...'
+                reversed_translated_kv = dict(zip(adding_keys, translate_ms(translated_kv.values(), 'en')))
+                for bk in adding_keys:
+                    if bk in reversed_translated_kv:
+                        ratio = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
+                        if __IGNORE_UNVERIFIED_RESULTS__ and ratio <= __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__:
+                            adding_keys.remove(bk)
+                            print 'Ignored:', bk, '<- Matching ratio: ', ratio
+                        reversed_matched_ratio_kv[bk] = ratio
 
         updated_content = []
         for item in base_content:
@@ -207,39 +231,45 @@ def main():
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
             newitem['comment'] = target_comment if __IGNORE_COMMENTS__ else target_comment or base_kc[k]
             needs_update_comment = False if __IGNORE_COMMENTS__ else not target_comment and base_kc[k]
-            
+
             #added
             if k in adding_keys:
                 if k in translated_kv:
                     newitem['value'] = translated_kv[k]
                     if not newitem['comment']:
                         newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
-                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k])
+
+                    reversed_matched_msg = ''
+                    if k in reversed_matched_ratio_kv:
+                        reversed_matched_msg = Fore.CYAN+"( {} % Matched: \'{}\' <- \'{}\' <- \'{}\' )".format(reversed_matched_ratio_kv[k], reversed_translated_kv[k], newitem['value'], base_kv[k])+Style.RESET_ALL
+
+                    print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k]), reversed_matched_msg
                 else:
                     newitem['value'] = target_kv[k]
                     if not newitem['comment']:
                         newitem['comment'] = 'Translate failed from: {0}'.format(base_kv[k])
-                    print '[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])
+
+                    print Fore.RED+'[Error] "{0}" = "{1}" X <- {2}'.format(k, newitem['value'], base_kv[k])+Style.RESET_ALL
             #exists
             elif k in existing_keys:
-                
+
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
                     if target_value != base_kv[k] and len(target_value) > len(base_kv[k]) or needs_update_comment:
-                        print '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k])
+                        print Fore.YELLOW+'(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k]), Style.RESET_ALL
                         newitem['value'] = base_kv[k]
                         updated_keys.append(k)
-                        
-                        if not lc in global_result_logs:                            
+
+                        if not lc in global_result_logs:
                             global_result_logs[lc] = {}
                         global_result_logs[lc][k] = (target_value, base_kv[k])
                     else:
                         newitem['value'] = target_value or base_kv[k]
-                        
+
                 elif k in __KEYS_FOLLOW_BASE__:
                     newitem['value'] = base_kv[k]
                     if target_value != base_kv[k] or needs_update_comment:
                         updated_keys.append(k)
-                        
+
                 else:
                     newitem['value'] = target_value or base_kv[k]
                     if not target_value or needs_update_comment:
@@ -249,12 +279,18 @@ def main():
 
         #removed or wrong
         for k in removing_keys:
-            print '[Remove]', k
+            print Fore.RED+'[Remove]', k,Style.RESET_ALL
 
-        if len(adding_keys) or len(removing_keys):
-            print '(i) Changed Keys: Added {0}, Updated {1}, Removed {2}'.format(len(adding_keys), len(updated_keys), len(removing_keys))
+        if len(adding_keys) or len(updated_keys) or len(removing_keys):
+            print Fore.WHITE + '(i) Changed Keys: Added {0}, Updated {1}, Removed {2}'.format(len(adding_keys), len(updated_keys), len(removing_keys)) ,Style.RESET_ALL
 
-        return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines
+        #check verification failed items
+        target_verified_items = None
+        if len(reversed_matched_ratio_kv):
+            #filter(lambda k: reversed_matched_ratio_kv[k] < 1, reversed_matched_ratio_kv)
+            target_verified_items = {k: {'ratio': reversed_matched_ratio_kv[k], 'original': base_kv[k], 'reversed':reversed_translated_kv[k], 'translated':translated_kv[k] } for k in reversed_matched_ratio_kv.keys()}
+
+        return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines, target_verified_items
 
     def write_file(target_file, list_of_content):
         suc = False
@@ -334,7 +370,8 @@ def main():
                 'updated_files' : [],
                 'skipped_files' : [],
                 'translated_files_lines' : {},
-                'error_lines_kv' : {}
+                'error_lines_kv' : {},
+                'verified_result' : {}
             }
 
             if not supported_lang(lc):
@@ -366,7 +403,7 @@ def main():
             for added_file in added_files:
                 print 'Adding File... {0}'.format(added_file)
                 create_file(added_file)
-                u, c, t, e = insert_or_translate(added_file, lc)
+                u, c, t, e, m = insert_or_translate(added_file, lc)
                 #error
                 if e:
                     error_files[added_file] = e
@@ -375,9 +412,13 @@ def main():
                     added_cnt+=1
                     translated_files_lines[added_file] = t
 
+                #verify failed
+                for k in (m or {}):
+                    results_dict[lc]['verified_result'][k] = m[k]
+
             #exist - lookup lines
             for ext_file in existing_files:
-                u, c, t, e = insert_or_translate(ext_file, lc)
+                u, c, t, e, m = insert_or_translate(ext_file, lc)
                 #error
                 if e:
                     error_files[ext_file] = e
@@ -388,8 +429,12 @@ def main():
                         updated_cnt=+1
                         translated_files_lines[ext_file] = t
 
+                #verify failed
+                for k in (m or {}):
+                    results_dict[lc]['verified_result'][k] = m[k]
+
             if added_cnt or updated_cnt or removed_cnt or error_files:
-                print '(i) Changed Files : Added {0}, Updated {1}, Removed {2}, Error {3}'.format(added_cnt, updated_cnt, removed_cnt, len(error_files.keys()))
+                print Fore.WHITE + '(i) Changed Files : Added {0}, Updated {1}, Removed {2}, Error {3}'.format(added_cnt, updated_cnt, removed_cnt, len(error_files.keys())) ,Style.RESET_ALL
             else:
                 print 'Nothing to translate or add.'
 
@@ -405,8 +450,14 @@ def main():
 
     # print total Results
     print ''
-    t_file_cnt, t_line_cnt = 0, 0
-    file_add_cnt, file_remove_cnt, file_update_cnt, file_skip_cnt = 0,0,0,0
+    t_file_cnt = \
+    t_line_cnt = \
+    file_add_cnt = \
+    file_add_cnt = \
+    file_remove_cnt = \
+    file_update_cnt = \
+    file_skip_cnt = \
+    0
 
     for lc in results_dict.keys():
         result_lc = results_dict[lc]
@@ -431,7 +482,7 @@ def main():
                     for key in tfiles[f]:
                         t_line_cnt += 1
                         # print key, ' = ', tfiles[f][key]
-          
+
     for lc in global_result_logs.keys():
         print lc
         for t in global_result_logs[lc].keys():
@@ -439,20 +490,32 @@ def main():
             print o.decode('utf-8'), ' -> ', b
 
     print ''
+    #WARN
     found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
+    if found_warining:
+        print Fore.YELLOW+'\n[!] WARNING: Found strings that contains the syntax error. Please confirm.'+Style.RESET_ALL
+        for a in found_warining:
+            for k in a:
+                print 'at', k
+                for i in a[k]:
+                    print ' ', i
+    #VERIFY FAILED
+    verified_results = filter(lambda i: i or None, rget(results_dict, 'verified_result'))
+    if verified_results and len(verified_results):
+        print Fore.GREEN+'\n[i] VERIFIED RESULTS: Matched ratio via reversed translation results. Please confirm.'+Style.RESET_ALL
+        for lc in results_dict:
+            print lc
+            vr = results_dict[lc]['verified_result']
+            for k in vr:
+                vd = vr[k]
+                status_msg = Fore.RED + '(Ignored) '+Style.RESET_ALL if __IGNORE_UNVERIFIED_RESULTS__ and vd['ratio']<=__RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ else ''
+                print '  {}{}: {} -> {} -> {}, Matched: {}%'.format(status_msg, k, vd['original'], vd['translated'], vd['reversed'], str(vd['ratio']))
 
-    if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt or found_warining:
+    print ''
+    if file_add_cnt or file_update_cnt or file_remove_cnt or file_skip_cnt:
         print 'Total New Translated Strings : {0}'.format(t_line_cnt)
         print 'Changed Files Total : Added {0}, Updated {1}, Removed {2}, Skipped {3}'.format(file_add_cnt, file_update_cnt, file_remove_cnt, file_skip_cnt)
         print "Synchronized."
-
-        if found_warining:
-            print '\n[!!] WARNING: Found strings that contains the syntax error. Please confirm.'
-            for a in found_warining:
-                for k in a:
-                    print 'at', k
-                    for i in a[k]:
-                        print ' ', i
     else:
         print "All strings are already synchronized. Nothing to translate or add."
 
