@@ -164,7 +164,36 @@ If the similarity of each reversed translation result is under the given value, 
 
 ex)
 ```
+strings will be skipped if its text similarity from reversed translation result is under 50 
+
 $ strsync (...) --ignore-unverified-results 50 
 
-result: strings will be skipped if its text similarity from reversed translation result is under 50 
+el
+  Hi: Hi -> Γεια σου -> Hi, Matched: 100%
+fr-CA
+  (Ignored) Hi: Hi -> Salut -> Hello, Matched: 50%
+id
+  (Ignored) Hi: Hi -> Hai -> Two, Matched: 0%
+fr
+  (Ignored) Hi: Hi -> Salut -> Hello, Matched: 50%
+uk
+  Hi: Hi -> Привіт -> Hi, Matched: 100%
+hr
+  (Ignored) Hi: Hi -> Bok -> Book, Matched: 0%
+da
+  Hi: Hi -> Hej -> Hi, Matched: 100%
+ja
+  (Ignored) Hi: Hi -> こんにちは -> Hello, Matched: 50%
+he
+  (Ignored) Hi: Hi -> היי -> Hey, Matched: 50%
+ko
+  Hi: Hi -> 안녕 -> Hi, Matched: 100%
+sv
+  Hi: Hi -> Hej -> Hi, Matched: 100%
+es-MX
+  (Ignored) Hi: Hi -> Hola -> Hello, Matched: 50%
+sk
+  Hi: Hi -> ahoj -> Hi, Matched: 100%
+zh-CN
+  (Ignored) Hi: Hi -> 你好 -> How are you doing, Matched: 50%
 ```
