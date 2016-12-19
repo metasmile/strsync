@@ -219,7 +219,8 @@ def main():
                     if bk in reversed_translated_kv:
                         ratio = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
                         if __IGNORE_UNVERIFIED_RESULTS__ and ratio <= __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__:
-                            adding_keys.remove(bk)
+                            translated_kv[k] = base_kv[k] # copy from base set
+                            # adding_keys.remove(bk)
                             print 'Ignored:', bk, '<- Matching ratio: ', ratio
                         reversed_matched_ratio_kv[bk] = ratio
 
