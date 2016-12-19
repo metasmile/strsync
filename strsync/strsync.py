@@ -11,6 +11,9 @@ from colorama import init
 from colorama import Fore, Back, Style
 init(autoreset=True)
 
+import unicodedata
+__UNILEN__ = lambda _str: len(unicodedata.normalize('NFC',_str.decode('utf-8')))
+
 def resolve_file_path(file):
     return os.path.join(os.path.dirname(__file__), file)
 
@@ -255,7 +258,7 @@ def main():
             elif k in existing_keys:
 
                 if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
-                    if target_value != base_kv[k] and len(target_value) > len(base_kv[k]) or needs_update_comment:
+                    if target_value != base_kv[k] and __UNILEN__(target_value) > __UNILEN__(base_kv[k]) or needs_update_comment:
                         print Fore.YELLOW+'(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as', len(target_value), '>', len(base_kv[k]), Style.RESET_ALL
                         newitem['value'] = base_kv[k]
                         updated_keys.append(k)
