@@ -56,7 +56,7 @@ def main():
     __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
     __IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'] is not None
-    __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'][0] if __IGNORE_UNVERIFIED_RESULTS__ and len(args['ignore_unverified_results']) else 0
+    __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = int(args['ignore_unverified_results'][0]) if __IGNORE_UNVERIFIED_RESULTS__ and len(args['ignore_unverified_results']) else 0
     __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
     # sys.exit(0)
