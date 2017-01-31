@@ -217,7 +217,7 @@ def main():
 
             if __VERIFY_TRANS_RESULTS__:
                 print 'Reversing results and matching...'
-                reversed_translated_kv = dict(zip(adding_keys, translate_ms(translated_kv.values(), 'en')))
+                reversed_translated_kv = dict(zip(adding_keys, translate_ms([translated_kv[_ak] for _ak in adding_keys], 'en')))
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
                         ratio = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
