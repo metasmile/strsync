@@ -5,13 +5,12 @@
 [![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)](https://github.com/vsouza/awesome-ios#localization)
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
 [![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
-[![Stories in Ready](https://badge.waffle.io/metasmile/strsync.svg?label=ready&title=Tasks In Ready)](http://waffle.io/metasmile/strsync)
 
 Automatically translate and synchronize '.strings' files from defined base language.
 
 The basic concept of this python CLI tool is very simple file name based one-way synchronizer. If you are running, other localized resources will have exactly the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
 
-While the actual i18n work, my biggest desire was to just quickly fill many empty strings first. This tool has been made for that purpose. In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc.. As you know all translation results of this tool is just based on the Microsoft Translator. So In case of more complex, inspections by human will be required for exact results. But you may save very much of your time! 
+While the actual i18n work, my biggest desire was to just quickly fill many empty strings first. This tool has been made for that purpose. In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc.. As you know all translation results of this tool is just based on the Microsoft Translator. So In case of more complex, inspections by human will be required for exact results. But you may save very much of your time!
 
 ![](https://github.com/metasmile/strsync/blob/master/structure.png)
 
@@ -74,7 +73,7 @@ optional arguments:
                         if its length longer than length of "Base" value.
   -ic [IGNORE_COMMENTS ...], --ignore-comments
                         Allows to ignore comment synchronization.
-                        
+
   -v, --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
                         Verify translated results via reversed results
   -iuv, --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
@@ -123,8 +122,8 @@ $ strsync -c clien_idXXXX -s clien_secretXXXX -fb autoenhance flashmode
 "autoenhance" = "Auto-Enhance";
 ```
 
-If you add an option **-v** or **--verify-results**, 
-String similarity of the reversed translation result for each languages will be displayed. 
+If you add an option **-v** or **--verify-results**,
+String similarity of the reversed translation result for each languages will be displayed.
 
 ```
 $ strsync (...) -v
@@ -164,9 +163,9 @@ If the similarity of each reversed translation result is under the given value, 
 
 ex)
 ```
-strings will be skipped if its text similarity from reversed translation result is under 50 
+strings will be skipped if its text similarity from reversed translation result is under 50
 
-$ strsync (...) --ignore-unverified-results 50 
+$ strsync (...) --ignore-unverified-results 50
 
 el
   Hi: Hi -> Γεια σου -> Hi, Matched: 100%
