@@ -209,7 +209,7 @@ def main():
         perform translate
         """
         translated_kv = {}
-        reversed_matched_ratio_kv = {}
+        reversed_matched_kv = {} #{"ratio":float, "ignored":True|False}
         reversed_translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
@@ -221,11 +221,11 @@ def main():
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
                         ratio = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])
-                        if __IGNORE_UNVERIFIED_RESULTS__ and ratio <= __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__:
-                            translated_kv[k] = base_kv[k] # copy from base set
-                            # adding_keys.remove(bk)
-                            print 'Ignored:', bk, '<- Matching ratio: ', ratio
-                        reversed_matched_ratio_kv[bk] = ratio
+                        should_ignore = __IGNORE_UNVERIFIED_RESULTS__ and ratio <= __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__
+                        if should_ignore:
+                            translated_kv[bk] = base_kv[bk] # copy from base set
+                        reversed_matched_kv[bk] = {"ratio":ratio, "ignored":should_ignore}
+
 
         updated_content = []
         for item in base_content:
@@ -244,8 +244,8 @@ def main():
                         newitem['comment'] = 'Translated from: {0}'.format(base_kv[k])
 
                     reversed_matched_msg = ''
-                    if k in reversed_matched_ratio_kv:
-                        reversed_matched_msg = Fore.CYAN+"( {} % Matched: \'{}\' <- \'{}\' <- \'{}\' )".format(reversed_matched_ratio_kv[k], reversed_translated_kv[k], newitem['value'], base_kv[k])+Style.RESET_ALL
+                    if k in reversed_matched_kv:
+                        reversed_matched_msg = Fore.CYAN+"({}% Matched{}: \'{}\' <- \'{}\' <- \'{}\')".format(reversed_matched_kv[k]["ratio"], ", So ignored [X]" if reversed_matched_kv[k]["ignored"] else "", reversed_translated_kv[k], newitem['value'], base_kv[k])+Style.RESET_ALL
 
                     print '[Add] "{0}" = "{1}" <- {2}'.format(k, newitem['value'], base_kv[k]), reversed_matched_msg
                 else:
@@ -290,9 +290,8 @@ def main():
 
         #check verification failed items
         target_verified_items = None
-        if len(reversed_matched_ratio_kv):
-            #filter(lambda k: reversed_matched_ratio_kv[k] < 1, reversed_matched_ratio_kv)
-            target_verified_items = {k: {'ratio': reversed_matched_ratio_kv[k], 'original': base_kv[k], 'reversed':reversed_translated_kv[k], 'translated':translated_kv[k] } for k in reversed_matched_ratio_kv.keys()}
+        if len(reversed_matched_kv):
+            target_verified_items = {k: {'ratio': reversed_matched_kv[k]["ratio"], 'original': base_kv[k], 'reversed':reversed_translated_kv[k], 'translated':translated_kv[k] } for k in reversed_matched_kv.keys()}
 
         return updated_content and (len(adding_keys)>0 or len(updated_keys)>0 or len(removing_keys)>0), updated_content, translated_kv, target_error_lines, target_verified_items
 
