@@ -1,0 +1,6 @@
+requests==2.13.0
+googletrans
+chardet
+six
+fuzzywuzzy
+colorama

@@ -10,7 +10,7 @@ from setuptools import setup
 
 setup(
     name="strsync",
-    version="1.1.3",
+    version="1.2",
     packages=[
         'strsync',
     ],
@@ -40,10 +40,15 @@ setup(
     ],
     install_requires=[
         'microsofttranslator',
+        'googletrans',
         'chardet',
-        'requests >= 1.2.3',
+        'requests == 2.13.0',
         'six',
         'fuzzywuzzy',
         'colorama'
+    ],
+    tests_require=[
+        'pytest',
+        'coveralls',
     ]
 )
