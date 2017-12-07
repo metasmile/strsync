@@ -2,7 +2,7 @@
 # strsync - Automatically translate and synchronize .strings files from defined base language.
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
-from microsofttranslator import Translator
+from googletrans import Translator
 import strsparser
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
