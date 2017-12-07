@@ -39,7 +39,6 @@ setup(
         "Programming Language :: Python :: 2",
     ],
     install_requires=[
-        'microsofttranslator',
         'googletrans',
         'chardet',
         'requests == 2.13.0',

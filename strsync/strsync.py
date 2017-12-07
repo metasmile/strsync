@@ -64,6 +64,7 @@ def main():
     __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
     __DEFAULT_XCODE_LPROJ_NAMES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
+
     # sys.exit(0)
     # return
 
@@ -318,9 +319,9 @@ def main():
     results_dict = {}
 
     # Get Base Language Specs
-
     walked = list(os.walk(__RESOURCE_PATH__, topdown=True))
 
+    # Init with Base.lproj
     for dir, subdirs, files in walked:
         if os.path.basename(dir)==__BASE_RESOUCE_DIR__:
             for _file in resolve_file_names(files):
@@ -334,6 +335,19 @@ def main():
         print '[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__)
         sys.exit(0)
 
+    # Exist or Create supporting lproj dirs.
+    print 'Check and verifiy resources ...'
+    current_lproj_names = [os.path.splitext(os.path.basename(lproj_path))[0] for lproj_path in filter(lambda d: d.endswith(__DIR_SUFFIX__), [dir for dir, subdirs, files in walked])]
+    notexisted_lproj_names = list(set(__DEFAULT_XCODE_LPROJ_NAMES__)-set(current_lproj_names))
+
+    creating_lproj_dirs = [expanduser(os.path.join(__RESOURCE_PATH__, ln+__DIR_SUFFIX__)) for ln in notexisted_lproj_names]
+    if creating_lproj_dirs:
+        print 'Following lproj dirs does not exists. Creating ...'
+        print os.getcwd(),creating_lproj_dirs
+        for d in creating_lproj_dirs:
+            os.mkdir(d)
+
+    # Start to sync localizable files.
     print 'Start synchronizing...'
     for file in base_dict:
         print 'Target:', file
