@@ -33,8 +33,6 @@ def main():
     parser = argparse.ArgumentParser(description='Automatically translate and synchronize .strings files from defined base language.')
     parser.add_argument('-b','--base-lang-name', help='A base(or source) localizable resource name.(default=\'Base\'), (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default='Base', required=False)
     parser.add_argument('-x','--excluding-lang-names', type=str, help='A localizable resource name that you want to exclude. (e.g. "Base" via \'Base.lproj\', "en" via \'en.lproj\')', default=[], required=False, nargs='+')
-    parser.add_argument('-c','--client-id', help='Client ID for MS Translation API', required=True)
-    parser.add_argument('-s','--client-secret', help='Client Secret key for MS Translation API', required=True)
     parser.add_argument('-f','--force-translate-keys', type=str, help='Keys in the strings to update and translate by force. (input nothing for all keys.)', default=[], required=False, nargs='*')
     parser.add_argument('-fb','--following-base-keys', type=str, help='Keys in the strings to follow from "Base".', default=[], required=False, nargs='+')
     parser.add_argument('-fbl','--following-base-keys-if-length-longer', type=str, help='Keys in the strings to follow from "Base" if its length longer than length of "Base" value.', default=[], required=False, nargs='+')
@@ -51,6 +49,7 @@ def main():
     __LANG_SEP__ = '-'
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
+    __FILE_DICT_SUFFIX__ = ".stringsdict"
     __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
     __EXCLUDING_LANGS__ = args['excluding_lang_names']
@@ -343,8 +342,8 @@ def main():
     creating_lproj_dirs = [expanduser(os.path.join(__RESOURCE_PATH__, ln+__DIR_SUFFIX__)) for ln in notexisted_lproj_names]
     if creating_lproj_dirs:
         print 'Following lproj dirs does not exists. Creating ...'
-        print os.getcwd(),creating_lproj_dirs
         for d in creating_lproj_dirs:
+            print 'Created', d
             os.mkdir(d)
 
     # Start to sync localizable files.
