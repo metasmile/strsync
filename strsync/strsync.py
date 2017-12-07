@@ -2,6 +2,7 @@
 # strsync - Automatically translate and synchronize .strings files from defined base language.
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
+import googletrans
 from googletrans import Translator
 import strsparser
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
@@ -62,6 +63,7 @@ def main():
     __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = int(args['ignore_unverified_results'][0]) if __IGNORE_UNVERIFIED_RESULTS__ and len(args['ignore_unverified_results']) else 0
     __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
+    __DEFAULT_XCODE_LPROJ_NAMES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
     # sys.exit(0)
     # return
 
@@ -86,48 +88,31 @@ def main():
     __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
     print Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__) ,Style.RESET_ALL
 
-    __MS_CODE_ALIASES__ = {
-        # MS API Supported : ios9 supported ISO639 1-2 codes
-        'zh-CHS' : ['zh-Hans', 'zh-CN', 'zh-SG'],
-        'zh-CHT' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW'],
-        'en' : ['en-AU', 'en-GB'],
-        'es' : ['es-MX'],
-        'fr' : ['fr-CA'],
-        'pt' : ['pt-BR','pt-PT']
+    __SUPPORTED_CODES_ALIASES____ = {
+        # API Supported : [ios9 supported ISO639 1-2 codes]
+        'zh-cn' : ['zh-Hans', 'zh-CN', 'zh-SG'], # simplified
+        'zh-tw' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW'], #traditional
     }
 
-    # read mst langs
-    print Fore.WHITE + '(i) Fetching supported locales from Microsoft Translation API...' ,Style.RESET_ALL
-    trans = Translator(args['client_id'], args['client_secret'])
+    trans = Translator()
 
-    __MS_LANG_FILE__ = resolve_file_path('lc_ms.cached.tsv')
-    __MS_SUPPORTED_CODES__ = None
-    if os.path.exists(__MS_LANG_FILE__):
-        __MS_SUPPORTED_CODES__ = [l.strip() for l in open(__MS_LANG_FILE__,'rb').readlines()]
-    else:
-        __MS_SUPPORTED_CODES__ = trans.get_languages()
-        cfile = open(__MS_LANG_FILE__,'w')
-        codes = ''
-        for code in __MS_SUPPORTED_CODES__:
-            codes += code+'\n'
-        cfile.write(codes)
-        cfile.close()
-    print Fore.WHITE + '(i) Supported numbers of locale code :', len(__MS_SUPPORTED_CODES__) ,Style.RESET_ALL
+    __SUPPORTED_CODES__ = [l for l in googletrans.LANGCODES.values()]
+    print Fore.WHITE + '(i) Supported numbers of locale code :', len(__SUPPORTED_CODES__) ,Style.RESET_ALL
 
     #
     global_result_logs = {}
 
     # methods
     def supported_lang(code):
-        alias = [ms for ms, ios in __MS_CODE_ALIASES__.items() if code in ios]
+        alias = [ms for ms, ios in __SUPPORTED_CODES_ALIASES____.items() if code in ios]
         # check es-{Custom defined alias}
         if len(alias)==1:
             return alias[0]
         # check es-MX
-        elif code in __MS_SUPPORTED_CODES__:
+        elif code in __SUPPORTED_CODES__:
             return code
         # check es
-        elif code.split(__LANG_SEP__)[0] in __MS_SUPPORTED_CODES__:
+        elif code.split(__LANG_SEP__)[0] in __SUPPORTED_CODES__:
             return code.split(__LANG_SEP__)[0]
         else:
             return None
@@ -151,10 +136,10 @@ def main():
     def validate_liternal_replacement(str):
         return __LITERNAL_REPLACEMENT_RE__.sub(__LITERNAL_FORMAT__, str)
 
-    def translate_ms(strs, to):
+    def translate(strs, to):
         lang = supported_lang(to)
         strs = preprocessing_translate_strs(strs)
-        return [postprocessing_translate_str(r['TranslatedText']) for r in trans.translate_array(strs, lang)] if lang else strs
+        return [postprocessing_translate_str(r.text) for r in trans.translate(strs, dest=lang)] if lang else strs
 
     def strings_obj_from_file(file):
         return strsparser.parse_strings(filename=file)
@@ -213,11 +198,11 @@ def main():
         reversed_translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
-            translated_kv = dict(zip(adding_keys, translate_ms([base_kv[k] for k in adding_keys], lc)))
+            translated_kv = dict(zip(adding_keys, translate([base_kv[k] for k in adding_keys], lc)))
 
             if __VERIFY_TRANS_RESULTS__:
                 print 'Reversing results and matching...'
-                reversed_translated_kv = dict(zip(adding_keys, translate_ms([translated_kv[_ak] for _ak in adding_keys], 'en')))
+                reversed_translated_kv = dict(zip(adding_keys, translate([translated_kv[_ak] for _ak in adding_keys], 'en')))
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
                         ratio = fuzz.partial_ratio(base_kv[bk], reversed_translated_kv[bk])

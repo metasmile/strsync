@@ -7,3 +7,4 @@ translator = Translator()
 
 print googletrans.LANGCODES
 print googletrans.constants
+print [l.text for l in translator.translate(['hi','you'], src='en', dest='ko')]
