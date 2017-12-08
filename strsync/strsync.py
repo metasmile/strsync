@@ -4,7 +4,8 @@
 
 import googletrans
 from googletrans import Translator
-import strsparser
+from babel import Locale
+import strsparser, strlocale
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
 from fuzzywuzzy import fuzz
@@ -46,7 +47,9 @@ def main():
     sys.setdefaultencoding('utf-8')
 
     # configure arguments
-    __LANG_SEP__ = '-'
+    __LOCALE_SEP_SCRIPT__ = '-'
+    __LOCALE_SEP_REGION__ = '_'
+
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
     __FILE_DICT_SUFFIX__ = ".stringsdict"
@@ -88,6 +91,11 @@ def main():
     __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
     print Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__) ,Style.RESET_ALL
 
+    # [language designator] en, fr
+    # [language designator]_[region designator] en_GB, zh_HK
+    # [language designator]-[script designator] az-Arab, zh-Hans
+    # [language designator]-[script designator]_[region designator] zh-Hans_HK
+
     __SUPPORTED_CODES_ALIASES____ = {
         # API Supported : [ios9 supported ISO639 1-2 codes]
         'zh-cn' : ['zh-Hans', 'zh-CN', 'zh-SG'], # simplified
@@ -112,8 +120,8 @@ def main():
         elif code in __SUPPORTED_CODES__:
             return code
         # check es
-        elif code.split(__LANG_SEP__)[0] in __SUPPORTED_CODES__:
-            return code.split(__LANG_SEP__)[0]
+        elif code.split(__LOCALE_SEP_SCRIPT__)[0] in __SUPPORTED_CODES__:
+            return code.split(__LOCALE_SEP_SCRIPT__)[0]
         else:
             return None
 
@@ -356,7 +364,8 @@ def main():
 
         if dir.endswith((__DIR_SUFFIX__)):
             lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
-            if lc.find('_'): lc = lc.replace('_', __LANG_SEP__)
+
+            if lc.find('_'): lc = lc.replace('_', __LOCALE_SEP_SCRIPT__)
             if lc == __BASE_LANG__:
                 continue
 
