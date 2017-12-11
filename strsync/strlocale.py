@@ -1,34 +1,83 @@
 # -*- coding: utf-8 -*-
 from babel import Locale
 
+__LOCALE_SEP_SCRIPT__ = '-'
+__LOCALE_SEP_REGION__ = '_'
+
+_cached_locale_ = {}
+
 def get_locale(locale_code):
+    locale = None
+
     try:
-        return Locale.parse(locale_code)
+        locale = Locale.parse(locale_code)
     except:
         try:
-            return Locale.parse(locale_code, sep='-')
+            locale = Locale.parse(locale_code, sep='-')
         except:
-            return None
+            pass
+
+    if locale_code in _cached_locale_:
+        locale = _cached_locale_[locale_code]
+
+    if locale:
+        _cached_locale_[locale_code] = locale
+
+    return locale
 
 def lang(locale_code):
     l = get_locale(locale_code)
     return l.language if l else None
 
+def is_equal_lang(locale1, locale2):
+    l1, l2 = lang(locale1), lang(locale2)
+    return (l1 and l2) and l1==l2
+
 def region(locale_code):
     l = get_locale(locale_code)
     return l.territory if l else None
+
+def is_equal_region(locale1, locale2):
+    r1, r2 = region(locale1), region(locale2)
+    return (r1 and r2) and r1==r2
 
 def script(locale_code):
     l = get_locale(locale_code)
     return l.script if l else None
 
-def is_equal_lang(locale1, locale2):
-    l1, l2 = lang(locale1), lang(locale2)
-    return (l1 and l2) and l1==l2
-
 def is_equal_script(locale1, locale2):
     s1, s2 = script(locale1), script(locale2)
     return (s1 and s2) and s1==s2
+
+def matched_locale_code(code, for_codes):
+    if len(for_codes) != len(filter(lambda l: get_locale(l) is not None, for_codes)):
+        print "[!] Warning. Following codes are not supported by system:", filter(lambda l: get_locale(l) is None, for_codes)
+
+    if code in for_codes:
+        return code
+    else:
+        lang_matched_codes = filter(lambda l: is_equal_lang(code, l), for_codes)
+
+        if len(lang_matched_codes)==1:
+            return lang_matched_codes[0]
+
+        elif len(lang_matched_codes)>1:
+            script_matched_codes = filter(lambda l: is_equal_script(code, l), lang_matched_codes)
+            region_matched_codes = filter(lambda l: is_equal_region(code, l), lang_matched_codes)
+
+            primary_matched_codes = script_matched_codes or region_matched_codes
+            intersacted_codes = list(set(script_matched_codes) & set(region_matched_codes))
+
+            print script_matched_codes, region_matched_codes, intersacted_codes
+
+            if intersacted_codes:
+                return intersacted_codes[0]
+            elif primary_matched_codes:
+                return primary_matched_codes[0]
+            else:
+                lang_matched_codes[0]
+
+    return None
 
 def is_equal_lang_and_script(locale1, locale2):
     return is_equal_lang(locale1, locale2) and is_equal_script(locale1,locale2)
