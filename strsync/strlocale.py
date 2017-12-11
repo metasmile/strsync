@@ -58,9 +58,17 @@ def matched_locale_code(code, for_codes):
     else:
         lang_matched_codes = filter(lambda l: is_equal_lang(code, l), for_codes)
 
-        if len(lang_matched_codes)==1:
+        #fallback by only lang code
+        if not lang_matched_codes:
+            if __LOCALE_SEP_SCRIPT__ in code:
+                print code.split(__LOCALE_SEP_SCRIPT__)[0]
+                return matched_locale_code(code.split(__LOCALE_SEP_SCRIPT__)[0], for_codes)
+            elif __LOCALE_SEP_REGION__ in code:
+                return matched_locale_code(code.split(__LOCALE_SEP_REGION__)[0], for_codes)
+        #found unique one
+        elif len(lang_matched_codes)==1:
             return lang_matched_codes[0]
-
+        #found several aliases
         elif len(lang_matched_codes)>1:
             script_matched_codes = filter(lambda l: is_equal_script(code, l), lang_matched_codes)
             region_matched_codes = filter(lambda l: is_equal_region(code, l), lang_matched_codes)
@@ -68,14 +76,15 @@ def matched_locale_code(code, for_codes):
             primary_matched_codes = script_matched_codes or region_matched_codes
             intersacted_codes = list(set(script_matched_codes) & set(region_matched_codes))
 
-            print script_matched_codes, region_matched_codes, intersacted_codes
-
+            #phase 1 - intersacted
             if intersacted_codes:
                 return intersacted_codes[0]
+            #phase 2 - match by primary matched
             elif primary_matched_codes:
                 return primary_matched_codes[0]
+            #phase 3 - forcefully return with first lang
             else:
-                lang_matched_codes[0]
+                return lang_matched_codes[0]
 
     return None
 
