@@ -2,6 +2,7 @@
 
 #play translator
 
+import sys
 import googletrans
 from googletrans import Translator
 from googletrans.constants import DEFAULT_USER_AGENT, LANGCODES, LANGUAGES, SPECIAL_CASES
@@ -47,16 +48,35 @@ cfmt='''\
 (?:\d+|\*)?                        # width
 (?:\.(?:\d+|\*))?                  # precision
 (?:h|l|ll|w|I|I32|I64)?            # size
-[cCdiouxXeEfgGaAnpsSZ]             # type
+[cCdiouxXeEfgGaAnpsSZ@]            # type
 ) |                                # OR
 %%)                                # literal "%%"
 '''
 
 for line in lines.splitlines():
-    print '"{}"\n\t{}\n'.format(line,
-           tuple((m.start(1), m.group(1)) for m in re.finditer(cfmt, line, flags=re.X)))
+    print '"{}"\n\t{}\n'.format(line, tuple((m.start(1), m.group(1)) for m in re.finditer(cfmt, line, flags=re.X)))
 
+tokens = []
+token = []
+tokenized_index = 0
+target_str = "Edit %d %@ add %f %f photo(s)"
 
+# print re.findall(cfmt, target_str, flags=re.X)
+
+for m in re.finditer(cfmt, target_str, flags=re.X):
+    token.append(target_str[tokenized_index:m.start(1)])
+    tokens.append({
+        "index" : m.start(1),
+        "length" : len(m.group(1)),
+        "text" : m.group(1)
+        })
+    tokenized_index = m.start(1)+len(m.group(1))
+
+    target_str = target_str.replace(m.group(1),"**")
+    print m.start(1), m.group(1)
+print target_str,token,tokens
+
+sys.exit(0)
 
 #play matched locale
 support_by_google = ['de', 'be', 'gl', 'mk', 'ur', 'pl', 'st', 'sw', 'is', 'tr', 'ro', 'so', 'hmn', 'id', 'km', 'hu', 'ca', 'ky', 'fi', 'su', 'sr', 'it', 'pt', 'cs', 'eu', 'ja', 'am', 'fa', 'tg', 'yi', 'xh', 'et', 'te', 'mr', 'sn', 'ps', 'gu', 'nl', 'mg', 'la', 'ig', 'yo', 'fr', 'hy', 'af', 'tl', 'uz', 'sq', 'vi', 'lv', 'jw', 'hr', 'gd', 'sk', 'es', 'eo', 'co', 'hi', 'da', 'bg', 'mi', 'haw', 'bs', 'ka', 'ms', 'lb', 'ht', 'ny', 'bn', 'ru', 'th', 'ta', 'ceb', 'zh-tw', 'ml', 'ha', 'ga', 'ku', 'kn', 'mn', 'iw', 'ar', 'si', 'sv', 'zu', 'sm', 'sl', 'az', 'sd', 'ko', 'lo', 'my', 'uk', 'cy', 'lt', 'no', 'mt', 'kk', 'ne', 'pa', 'el', 'en', 'zh-cn', 'fy']

@@ -84,6 +84,18 @@ def main():
     # return
 
     __LITERNAL_FORMAT__ = "%@"
+    __LITERAL_REGEX__='''\
+        (                                  # start of capture group 1
+        %                                  # literal "%"
+        (?:                                # first option
+        (?:[-+0 #]{0,5})                   # optional flags
+        (?:\d+|\*)?                        # width
+        (?:\.(?:\d+|\*))?                  # precision
+        (?:h|l|ll|w|I|I32|I64)?            # size
+        [cCdiouxXeEfgGaAnpsSZ@]             # type
+        ) |                                # OR
+        %%)                                # literal "%%"
+    '''
     __LITERNAL_FORMAT_RE__ = re.compile(r"(%\s{1,}@)|(@\s{0,}%)")
     __LITERNAL_REPLACEMENT__ = "**"
     __LITERNAL_REPLACEMENT_RE__ = re.compile(r"\*\s{0,}\*")
