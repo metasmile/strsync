@@ -49,6 +49,9 @@ def is_equal_script(locale1, locale2):
     s1, s2 = script(locale1), script(locale2)
     return (s1 and s2) and s1==s2
 
+def is_equal_lang_and_script(locale1, locale2):
+    return is_equal_lang(locale1, locale2) and is_equal_script(locale1,locale2)
+
 def matched_locale_code(code, for_codes):
     if len(for_codes) != len(filter(lambda l: get_locale(l) is not None, for_codes)):
         print "[!] Warning. Following codes are not supported by system:", filter(lambda l: get_locale(l) is None, for_codes)
@@ -88,5 +91,8 @@ def matched_locale_code(code, for_codes):
 
     return None
 
-def is_equal_lang_and_script(locale1, locale2):
-    return is_equal_lang(locale1, locale2) and is_equal_script(locale1,locale2)
+def intersacted_locale_codes(codes, for_codes):
+    alt_matched_codes = []
+    for c in list(set(codes) - set(for_codes)):
+        alt_matched_codes.append(matched_locale_code(c, for_codes))
+    return list((set(codes) & set(for_codes)) | (set(alt_matched_codes) & set(for_codes)))

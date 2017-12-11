@@ -91,3 +91,12 @@ print strlocale.matched_locale_code('tl_CC',support_by_google)
 print
 print strlocale.matched_locale_code('zh-AA_CC',__DEFAULT_XCODE_LPROJ_NAMES__)
 print strlocale.matched_locale_code('zh_BB-CC',__DEFAULT_XCODE_LPROJ_NAMES__)
+
+#intersaction code
+inter_xcode_for_google = strlocale.intersacted_locale_codes(__DEFAULT_XCODE_LPROJ_NAMES__, support_by_google)
+print inter_xcode_for_google
+assert len(set(inter_xcode_for_google)-set(support_by_google))==0
+
+inter_google_for_xcode = strlocale.intersacted_locale_codes(support_by_google, __DEFAULT_XCODE_LPROJ_NAMES__)
+print inter_google_for_xcode
+assert len(set(inter_google_for_xcode)-set(__DEFAULT_XCODE_LPROJ_NAMES__))==0
