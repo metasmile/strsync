@@ -63,10 +63,31 @@ support_by_google = ['de', 'be', 'gl', 'mk', 'ur', 'pl', 'st', 'sw', 'is', 'tr',
 __DEFAULT_XCODE_LPROJ_NAMES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
 
 # print strlocale.matched_locale_code('de',support_by_google)
-# print strlocale.matched_locale_code('de-DE',support_by_google)
-# print strlocale.matched_locale_code('zh_HK',support_by_google)
-# print strlocale.matched_locale_code('zh-HK',support_by_google)
-# print strlocale.matched_locale_code('fr',support_by_google)
-# print strlocale.matched_locale_code('zh_hans',support_by_google)
-# print strlocale.matched_locale_code('zh-hant',support_by_google)
+print strlocale.matched_locale_code('de-DE',support_by_google)
+print strlocale.matched_locale_code('zh_HK',support_by_google)
+print strlocale.matched_locale_code('zh-HK',support_by_google)
+print strlocale.matched_locale_code('fr',support_by_google)
+print strlocale.matched_locale_code('zh_hans',support_by_google)
+print strlocale.matched_locale_code('zh-hant',support_by_google)
 print strlocale.matched_locale_code('zh-Hans_HK',support_by_google)
+print
+print strlocale.matched_locale_code('fr_CA',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('en_GB',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('en_AU',__DEFAULT_XCODE_LPROJ_NAMES__)
+print
+print strlocale.matched_locale_code('fr_CA',support_by_google)
+print strlocale.matched_locale_code('en_GB',support_by_google)
+print strlocale.matched_locale_code('en_AU',support_by_google)
+print
+print strlocale.matched_locale_code('zh_CN',support_by_google)
+print strlocale.matched_locale_code('zh-CN',support_by_google)
+print
+print strlocale.matched_locale_code('zh_CN',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('zh-CN',__DEFAULT_XCODE_LPROJ_NAMES__)
+print
+print strlocale.matched_locale_code('zh-AA_CC',support_by_google)
+print strlocale.matched_locale_code('zh_BB-CC',support_by_google)
+print strlocale.matched_locale_code('tl_CC',support_by_google)
+print
+print strlocale.matched_locale_code('zh-AA_CC',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('zh_BB-CC',__DEFAULT_XCODE_LPROJ_NAMES__)
