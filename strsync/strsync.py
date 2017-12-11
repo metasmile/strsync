@@ -47,8 +47,7 @@ def main():
     sys.setdefaultencoding('utf-8')
 
     # configure arguments
-    __LOCALE_SEP_SCRIPT__ = '-'
-    __LOCALE_SEP_REGION__ = '_'
+    __LOCALE_XCODE_BASE_LOWERCASE__ = 'base'
 
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
@@ -65,7 +64,21 @@ def main():
     __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = int(args['ignore_unverified_results'][0]) if __IGNORE_UNVERIFIED_RESULTS__ and len(args['ignore_unverified_results']) else 0
     __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
     __BASE_RESOUCE_DIR__ = None
-    __DEFAULT_XCODE_LPROJ_NAMES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
+
+    #Locale settings
+    # [language designator] en, fr
+    # [language designator]_[region designator] en_GB, zh_HK
+    # [language designator]-[script designator] az-Arab, zh-Hans
+    # [language designator]-[script designator]_[region designator] zh-Hans_HK
+    print '(i) Initializing for supported languages ...'
+    __GOOG_SUPPORTED_LOCALES__ = [l for l in googletrans.LANGCODES.values()]
+
+    __DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
+
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__, __GOOG_SUPPORTED_LOCALES__)
+    __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
+
+    print Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)), Style.RESET_ALL
 
     # sys.exit(0)
     # return
@@ -78,11 +91,15 @@ def main():
     __QUOTES_RE__ = re.compile(r"\"")
     __QUOTES_REPLACEMENT__ = "'"
 
+    #handle base
     if __BASE_LANG__.endswith(__DIR_SUFFIX__):
         __BASE_RESOUCE_DIR__ = __BASE_LANG__
         __BASE_LANG__ = __BASE_LANG__.split(__DIR_SUFFIX__)[0]
     else:
         __BASE_RESOUCE_DIR__ = __BASE_LANG__+__DIR_SUFFIX__
+
+    if not __BASE_LANG__.lower()==__LOCALE_XCODE_BASE_LOWERCASE__:
+        __BASE_LANG__ = strlocale.lang(__BASE_LANG__)
 
     # setup Translator & langs
 
@@ -91,39 +108,8 @@ def main():
     __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
     print Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__) ,Style.RESET_ALL
 
-    # [language designator] en, fr
-    # [language designator]_[region designator] en_GB, zh_HK
-    # [language designator]-[script designator] az-Arab, zh-Hans
-    # [language designator]-[script designator]_[region designator] zh-Hans_HK
-
-    __SUPPORTED_CODES_ALIASES____ = {
-        # API Supported : [ios9 supported ISO639 1-2 codes]
-        'zh-cn' : ['zh-Hans', 'zh-CN', 'zh-SG'], # simplified
-        'zh-tw' : ['zh-Hant', 'zh-MO', 'zh-HK', 'zh-TW'], #traditional
-    }
-
     trans = Translator()
-
-    __SUPPORTED_CODES__ = [l for l in googletrans.LANGCODES.values()]
-    print Fore.WHITE + '(i) Supported numbers of locale code :', len(__SUPPORTED_CODES__) ,Style.RESET_ALL
-
-    #
     global_result_logs = {}
-
-    # methods
-    def supported_lang(code):
-        alias = [ms for ms, ios in __SUPPORTED_CODES_ALIASES____.items() if code in ios]
-        # check es-{Custom defined alias}
-        if len(alias)==1:
-            return alias[0]
-        # check es-MX
-        elif code in __SUPPORTED_CODES__:
-            return code
-        # check es
-        elif code.split(__LOCALE_SEP_SCRIPT__)[0] in __SUPPORTED_CODES__:
-            return code.split(__LOCALE_SEP_SCRIPT__)[0]
-        else:
-            return None
 
     def preprocessing_translate_strs(strs):
         return [__LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, s.strip()).replace(__LITERNAL_FORMAT__, __LITERNAL_REPLACEMENT__) for s in strs]
@@ -145,9 +131,8 @@ def main():
         return __LITERNAL_REPLACEMENT_RE__.sub(__LITERNAL_FORMAT__, str)
 
     def translate(strs, to):
-        lang = supported_lang(to)
         strs = preprocessing_translate_strs(strs)
-        return [postprocessing_translate_str(r.text) for r in trans.translate(strs, dest=lang)] if lang else strs
+        return [postprocessing_translate_str(r.text) for r in trans.translate(strs, dest=to)] if to else strs
 
     def strings_obj_from_file(file):
         return strsparser.parse_strings(filename=file)
@@ -345,7 +330,7 @@ def main():
     # Exist or Create supporting lproj dirs.
     print 'Check and verifiy resources ...'
     current_lproj_names = [os.path.splitext(os.path.basename(lproj_path))[0] for lproj_path in filter(lambda d: d.endswith(__DIR_SUFFIX__), [dir for dir, subdirs, files in walked])]
-    notexisted_lproj_names = list(set(__DEFAULT_XCODE_LPROJ_NAMES__)-set(current_lproj_names))
+    notexisted_lproj_names = list(set(__XCODE_LPROJ_SUPPORTED_LOCALES__)-set(current_lproj_names))
 
     creating_lproj_dirs = [expanduser(os.path.join(__RESOURCE_PATH__, ln+__DIR_SUFFIX__)) for ln in notexisted_lproj_names]
     if creating_lproj_dirs:
@@ -363,17 +348,21 @@ def main():
         files = resolve_file_names(files)
 
         if dir.endswith((__DIR_SUFFIX__)):
-            lc = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
+            lproj_name = os.path.basename(dir).split(__DIR_SUFFIX__)[0]
 
-            if lc.find('_'): lc = lc.replace('_', __LOCALE_SEP_SCRIPT__)
-            if lc == __BASE_LANG__:
+            if lproj_name == __BASE_LANG__:
                 continue
 
-            if lc in __EXCLUDING_LANGS__:
+            if not lproj_name in __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__:
+                print 'Does not supported: ', lproj_name
+                continue
+
+            lc = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__[lproj_name]
+
+            if strlocale.matched_locale_code(lc, __EXCLUDING_LANGS__):
                 print 'Skip: ', lc
                 continue
 
-            # lc = supported_lang(lc)
             results_dict[lc] = {
                 'deleted_files' : [],
                 'added_files' : [],
@@ -384,10 +373,10 @@ def main():
                 'verified_result' : {}
             }
 
-            if not supported_lang(lc):
-                print 'Does not supported: ', lc
-                results_dict[lc]['skipped_files'] = join_path_all(dir, files)
-                continue
+            # if not supported_lang(lc):
+            #     print 'Does not supported: ', lc
+            #     results_dict[lc]['skipped_files'] = join_path_all(dir, files)
+            #     continue
 
             print '\n', 'Analayzing localizables... {1} (at {0})'.format(dir, lc)
 

@@ -64,7 +64,6 @@ def matched_locale_code(code, for_codes):
         #fallback by only lang code
         if not lang_matched_codes:
             if __LOCALE_SEP_SCRIPT__ in code:
-                print code.split(__LOCALE_SEP_SCRIPT__)[0]
                 return matched_locale_code(code.split(__LOCALE_SEP_SCRIPT__)[0], for_codes)
             elif __LOCALE_SEP_REGION__ in code:
                 return matched_locale_code(code.split(__LOCALE_SEP_REGION__)[0], for_codes)
@@ -94,11 +93,15 @@ def matched_locale_code(code, for_codes):
 def intersacted_locale_codes(codes, for_codes):
     alt_matched_codes = []
     for c in list(set(codes) - set(for_codes)):
-        alt_matched_codes.append(matched_locale_code(c, for_codes))
-    return list((set(codes) & set(for_codes)) | (set(alt_matched_codes) & set(for_codes)))
+        matched_code = matched_locale_code(c, for_codes)
+        if matched_code:
+            alt_matched_codes.append(matched_locale_code(c, for_codes))
+    return list((set(for_codes)-set(codes)) | set(alt_matched_codes))
 
-def map_locale_codes(codes, for_codes):
-    mapped = {k:k for k in for_codes}
-    for c in list(set(codes) - set(for_codes)):
-        mapped[matched_locale_code(c, for_codes)] = c
+def map_locale_codes(matching_codes, for_codes):
+    mapped = {}
+    for c in matching_codes:
+        m = matched_locale_code(c, for_codes)
+        if m:
+            mapped[c] = m
     return mapped

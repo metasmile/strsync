@@ -74,10 +74,12 @@ print
 print strlocale.matched_locale_code('fr_CA',__DEFAULT_XCODE_LPROJ_NAMES__)
 print strlocale.matched_locale_code('en_GB',__DEFAULT_XCODE_LPROJ_NAMES__)
 print strlocale.matched_locale_code('en_AU',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('en-AU',__DEFAULT_XCODE_LPROJ_NAMES__)
 print
 print strlocale.matched_locale_code('fr_CA',support_by_google)
 print strlocale.matched_locale_code('en_GB',support_by_google)
 print strlocale.matched_locale_code('en_AU',support_by_google)
+print strlocale.matched_locale_code('en-AU',support_by_google)
 print
 print strlocale.matched_locale_code('zh_CN',support_by_google)
 print strlocale.matched_locale_code('zh-CN',support_by_google)
@@ -91,6 +93,18 @@ print strlocale.matched_locale_code('tl_CC',support_by_google)
 print
 print strlocale.matched_locale_code('zh-AA_CC',__DEFAULT_XCODE_LPROJ_NAMES__)
 print strlocale.matched_locale_code('zh_BB-CC',__DEFAULT_XCODE_LPROJ_NAMES__)
+print
+print strlocale.matched_locale_code('es_MX',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('es-MX',__DEFAULT_XCODE_LPROJ_NAMES__)
+print
+print strlocale.matched_locale_code('es_MX',support_by_google)
+print strlocale.matched_locale_code('es-MX',support_by_google)
+print
+print strlocale.matched_locale_code('he',__DEFAULT_XCODE_LPROJ_NAMES__)
+print strlocale.matched_locale_code('iw',__DEFAULT_XCODE_LPROJ_NAMES__)
+print
+print strlocale.matched_locale_code('he',support_by_google)
+print strlocale.matched_locale_code('iw',support_by_google)
 
 #intersaction code
 inter_xcode_for_google = strlocale.intersacted_locale_codes(__DEFAULT_XCODE_LPROJ_NAMES__, support_by_google)
