@@ -100,3 +100,10 @@ assert len(set(inter_xcode_for_google)-set(support_by_google))==0
 inter_google_for_xcode = strlocale.intersacted_locale_codes(support_by_google, __DEFAULT_XCODE_LPROJ_NAMES__)
 print inter_google_for_xcode
 assert len(set(inter_google_for_xcode)-set(__DEFAULT_XCODE_LPROJ_NAMES__))==0
+
+#mapped codes
+mapped_xcode_for_google = strlocale.map_locale_codes(__DEFAULT_XCODE_LPROJ_NAMES__,support_by_google)
+print mapped_xcode_for_google
+
+mapped_google_for_xcode = strlocale.map_locale_codes(support_by_google, __DEFAULT_XCODE_LPROJ_NAMES__)
+print mapped_google_for_xcode
