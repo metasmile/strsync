@@ -5,22 +5,30 @@ def get_locale(locale_code):
     try:
         return Locale.parse(locale_code)
     except:
-        return Locale.parse(locale_code, sep='-')
-    else:
-        print("Unexpected error:", sys.exc_info()[0])
-        raise
+        try:
+            return Locale.parse(locale_code, sep='-')
+        except:
+            return None
 
 def lang(locale_code):
-    return get_locale(locale_code).language
+    l = get_locale(locale_code)
+    return l.language if l else None
 
 def region(locale_code):
-    return get_locale(locale_code).territory
+    l = get_locale(locale_code)
+    return l.territory if l else None
 
 def script(locale_code):
-    return get_locale(locale_code).script
+    l = get_locale(locale_code)
+    return l.script if l else None
 
-def is_equal_lang(locale1, local2):
-    return lang(locale1)==lang(locale2)
+def is_equal_lang(locale1, locale2):
+    l1, l2 = lang(locale1), lang(locale2)
+    return (l1 and l2) and l1==l2
+
+def is_equal_script(locale1, locale2):
+    s1, s2 = script(locale1), script(locale2)
+    return (s1 and s2) and s1==s2
 
 def is_equal_lang_and_script(locale1, locale2):
-    return lang(locale1)==lang(locale2) and script(locale1)==script(locale2)
+    return is_equal_lang(locale1, locale2) and is_equal_script(locale1,locale2)
