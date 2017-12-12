@@ -2,10 +2,8 @@
 # strsync - Automatically translate and synchronize .strings files from defined base language.
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
-import googletrans
-from googletrans import Translator
 from babel import Locale
-import strsparser, strlocale
+import strparser, strlocale, strtrans
 import time, os, sys, re, textwrap, argparse, pprint, subprocess, codecs, csv
 from os.path import expanduser
 from fuzzywuzzy import fuzz
@@ -71,37 +69,12 @@ def main():
     # [language designator]-[script designator] az-Arab, zh-Hans
     # [language designator]-[script designator]_[region designator] zh-Hans_HK
     print '(i) Initializing for supported languages ...'
-    __GOOG_SUPPORTED_LOCALES__ = [l for l in googletrans.LANGCODES.values()]
-
     __DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
 
-    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__, __GOOG_SUPPORTED_LOCALES__)
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__, strtrans.supported_locales())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
 
     print Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)), Style.RESET_ALL
-
-    # sys.exit(0)
-    # return
-
-    __LITERNAL_FORMAT__ = "%@"
-    __LITERAL_REGEX__='''\
-        (                                  # start of capture group 1
-        %                                  # literal "%"
-        (?:                                # first option
-        (?:[-+0 #]{0,5})                   # optional flags
-        (?:\d+|\*)?                        # width
-        (?:\.(?:\d+|\*))?                  # precision
-        (?:h|l|ll|w|I|I32|I64)?            # size
-        [cCdiouxXeEfgGaAnpsSZ@]             # type
-        ) |                                # OR
-        %%)                                # literal "%%"
-    '''
-    __LITERNAL_FORMAT_RE__ = re.compile(r"(%\s{1,}@)|(@\s{0,}%)")
-    __LITERNAL_REPLACEMENT__ = "**"
-    __LITERNAL_REPLACEMENT_RE__ = re.compile(r"\*\s{0,}\*")
-
-    __QUOTES_RE__ = re.compile(r"\"")
-    __QUOTES_REPLACEMENT__ = "'"
 
     #handle base
     if __BASE_LANG__.endswith(__DIR_SUFFIX__):
@@ -120,34 +93,10 @@ def main():
     __IOS9_CODES__ = [lang_row[0] for lang_row in csv.reader(open(resolve_file_path('lc_ios9.tsv'),'rb'), delimiter='\t')]
     print Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__) ,Style.RESET_ALL
 
-    trans = Translator()
     global_result_logs = {}
 
-    def preprocessing_translate_strs(strs):
-        return [__LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, s.strip()).replace(__LITERNAL_FORMAT__, __LITERNAL_REPLACEMENT__) for s in strs]
-
-    def postprocessing_translate_str(str):
-        str = str.strip()
-        # remove Quotes
-        str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, str)
-        # replace tp liternal replacement
-        str = validate_liternal_replacement(str)
-        # liternal replacement to liternal for format
-        str = str.replace(__LITERNAL_REPLACEMENT__, __LITERNAL_FORMAT__)
-        return str
-
-    def validate_liternal_format(str):
-        return __LITERNAL_FORMAT_RE__.sub(__LITERNAL_FORMAT__, str)
-
-    def validate_liternal_replacement(str):
-        return __LITERNAL_REPLACEMENT_RE__.sub(__LITERNAL_FORMAT__, str)
-
-    def translate(strs, to):
-        strs = preprocessing_translate_strs(strs)
-        return [postprocessing_translate_str(r.text) for r in trans.translate(strs, dest=to)] if to else strs
-
     def strings_obj_from_file(file):
-        return strsparser.parse_strings(filename=file)
+        return strparser.parse_strings(filename=file)
 
     def merge_two_dicts(x, y):
         '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -162,7 +111,7 @@ def main():
         target_kc = {}
         target_error_lines = []
         if not notexist_or_empty_file(target_file):
-            parsed_strings = strsparser.parse_strings(filename=target_file)
+            parsed_strings = strparser.parse_strings(filename=target_file)
             for item in parsed_strings:
                 k, e = item['key'], item['error']
                 # line error
@@ -203,7 +152,7 @@ def main():
         reversed_translated_kv = {}
         if len(adding_keys):
             print 'Translating...'
-            translated_kv = dict(zip(adding_keys, translate([base_kv[k] for k in adding_keys], lc)))
+            translated_kv = dict(zip(adding_keys, strtrans.translate([base_kv[k] for k in adding_keys], lc)))
 
             if __VERIFY_TRANS_RESULTS__:
                 print 'Reversing results and matching...'

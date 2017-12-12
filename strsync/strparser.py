@@ -20,14 +20,14 @@ Apple strings files *must* be encoded in cls.ENCODING encoding.
 
 format_encoding = 'UTF-16'
 
-def _unescape_key(s):
+def __unescape_key(s):
     return s.replace('\\\n', '')
 
-def _unescape(s):
+def __unescape(s):
     s = s.replace('\\\n', '')
     return s.replace('\\"', '"').replace(r'\n', '\n').replace(r'\r', '\r')
 
-def _get_content(filename=None, content=None):
+def __get_content(filename=None, content=None):
     if content is not None:
         if chardet.detect(content)['encoding'].startswith(format_encoding):
             encoding = format_encoding
@@ -39,9 +39,9 @@ def _get_content(filename=None, content=None):
             return content
     if filename is None:
         return None
-    return _get_content_from_file(filename, format_encoding)
+    return __get_content_from_file(filename, format_encoding)
 
-def _get_content_from_file(filename, encoding):
+def __get_content_from_file(filename, encoding):
     f = open(filename, 'r')
     try:
         content = f.read()
@@ -71,7 +71,7 @@ def parse_strings(content="", filename=None):
     for details.
     """
     if filename is not None:
-        content = _get_content(filename=filename)
+        content = __get_content(filename=filename)
 
     stringset = []
     f = content
@@ -89,7 +89,7 @@ def parse_strings(content="", filename=None):
         end_ = i.end()
         key = i.group('key')
         comment = i.group('comment') or None
-                
+
         if not key:
             key = i.group('property')
         value = i.group('value')
@@ -104,7 +104,7 @@ def parse_strings(content="", filename=None):
                 break
             end = m.end()
         end = end_
-        key = _unescape_key(key)
+        key = __unescape_key(key)
         ''' _unescape(value) // don't needed this. becase \n is just \n in .strings '''
         stringset.append({'key': key, 'value': value, 'comment': comment, 'error': None})
     return stringset

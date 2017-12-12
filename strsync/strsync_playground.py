@@ -62,7 +62,6 @@ tokenized_index = 0
 target_str = "Edit %d %@ add %f %f photo(s)"
 
 # print re.findall(cfmt, target_str, flags=re.X)
-
 for m in re.finditer(cfmt, target_str, flags=re.X):
     token.append(target_str[tokenized_index:m.start(1)])
     tokens.append({
@@ -75,6 +74,10 @@ for m in re.finditer(cfmt, target_str, flags=re.X):
     target_str = target_str.replace(m.group(1),"**")
     print m.start(1), m.group(1)
 print target_str,token,tokens
+print re.sub(re.compile(cfmt), "**", target_str)
+
+import strtrans
+print strtrans.translate([lines], 'en')
 
 sys.exit(0)
 
