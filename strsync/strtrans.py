@@ -75,9 +75,20 @@ def translate(strs, to):
 
     #map results
     for i, t in enumerate(translated_items):
-        pre_items[i].trans_output_text = t.text
-        # print pre_items[i].trans_input_text, '->' , pre_items[i].trans_output_text
+        _result = t.text
+        _pre_trans_item = pre_items[i]
 
+        _literal_replacement_exist = bool(len(_pre_trans_item.matched_literal_items))
+        _literal_replacement_contains_all = bool(len(filter(lambda s: s in _result, [mitem.replacement for mitem in _pre_trans_item.matched_literal_items])))
+
+        # if literal replacement did not contain from translator, use original text.
+        if _literal_replacement_exist and not _literal_replacement_contains_all:
+            _pre_trans_item.trans_output_text = _pre_trans_item.original_text
+        #else, it means all replacing processes are completed, use/commit translated text.
+        else:
+            _pre_trans_item.trans_output_text = _result
+
+        # print pre_items[i].trans_input_text, '->' , pre_items[i].trans_output_text
     return __PostprocessingTransItem(pre_items).finalize_strs()
 
 def __preprocessing_translate_strs(strs):
@@ -92,5 +103,6 @@ def __preprocessing_translate_strs(strs):
             lr = __LITERNAL_REPLACEMENT__(i)
             pretext = pretext.replace(l, lr, 1)
             prematched_items.append(__PreTransMatchedLiteralItem(indexes[i], l, __LITERNAL_REPLACEMENT__(i)))
+
         preitems.append(__PreTransItem(otext, pretext, prematched_items))
     return preitems
