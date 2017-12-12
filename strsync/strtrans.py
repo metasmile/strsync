@@ -96,13 +96,16 @@ def __preprocessing_translate_strs(strs):
     for s in strs:
         otext = s.strip()
         pretext = otext
-        literals, indexes = zip(*[(m.group(0), (m.start(), m.end()-1)) for m in re.finditer(__LITERAL_REGEX__, otext, flags=re.X)])
 
-        prematched_items = []
-        for i, l in enumerate(literals):
-            lr = __LITERNAL_REPLACEMENT__(i)
-            pretext = pretext.replace(l, lr, 1)
-            prematched_items.append(__PreTransMatchedLiteralItem(indexes[i], l, __LITERNAL_REPLACEMENT__(i)))
+        found_literals = list(re.finditer(__LITERAL_REGEX__, otext, flags=re.X))
+        prematched_literal_items = []
+        
+        if len(found_literals):
+            literals, indexes = zip(*[(m.group(0), (m.start(), m.end()-1)) for m in found_literals])
+            for i, l in enumerate(literals):
+                lr = __LITERNAL_REPLACEMENT__(i)
+                pretext = pretext.replace(l, lr, 1)
+                prematched_literal_items.append(__PreTransMatchedLiteralItem(indexes[i], l, __LITERNAL_REPLACEMENT__(i)))
 
-        preitems.append(__PreTransItem(otext, pretext, prematched_items))
+        preitems.append(__PreTransItem(otext, pretext, prematched_literal_items))
     return preitems
