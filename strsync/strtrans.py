@@ -1,10 +1,10 @@
 
 import googletrans
 from googletrans import Translator
+import strlocale
 import re
 
 #https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Strings/Articles/formatSpecifiers.html
-__LITERNAL_FORMAT__ = "%@"
 __LITERAL_REGEX__='''\
     (                                  # start of capture group 1
     %                                  # literal "%"
@@ -27,6 +27,9 @@ def __LITERNAL_REPLACEMENT__(id):
 __QUOTES_RE__ = re.compile(r"\"")
 __QUOTES_REPLACEMENT__ = "'"
 
+__MULTIPLE_SUFFIX_RE__ = re.compile(r"(.*)(\(s\))(.*)")
+__MULTIPLE_SUFFIX_ALTER_REPLACEMENT__ = "s"
+__MULTIPLE_SUFFIX_NOT_SUPPORTED_LANGS__ = ['zh','ro','vi']
 
 class __PreTransItem(object):
     def __init__(self, original_text, trans_input_text, matched_literal_items):
@@ -68,7 +71,7 @@ def supported_locales():
 
 def translate(strs, to):
     assert len(strs) or isinstance(strs[0], str), "Input variables should be string list"
-    pre_items = [item for item in __preprocessing_translate_strs(strs)]
+    pre_items = [item for item in __preprocessing_translate_strs(strs, to)]
 
     translated_items = __trans.translate([item.trans_input_text for item in pre_items], dest=to)
     assert len(translated_items)==len(pre_items), "the numbers of input items and translated items must be same."
@@ -91,15 +94,20 @@ def translate(strs, to):
         # print pre_items[i].trans_input_text, '->' , pre_items[i].trans_output_text
     return __PostprocessingTransItem(pre_items).finalize_strs()
 
-def __preprocessing_translate_strs(strs):
+def __preprocessing_translate_strs(strs, dest_lang):
     preitems = []
     for s in strs:
         otext = s.strip()
-        pretext = otext
 
+        #process multiple suffixs
+        if strlocale.lang(dest_lang) in __MULTIPLE_SUFFIX_NOT_SUPPORTED_LANGS__:
+            otext = re.sub(__MULTIPLE_SUFFIX_RE__,r'\1s\3', otext)
+
+        #process literals
+        pretext = otext
         found_literals = list(re.finditer(__LITERAL_REGEX__, otext, flags=re.X))
         prematched_literal_items = []
-        
+
         if len(found_literals):
             literals, indexes = zip(*[(m.group(0), (m.start(), m.end()-1)) for m in found_literals])
             for i, l in enumerate(literals):
