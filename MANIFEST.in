@@ -1,3 +1,5 @@
 include LICENSE
 include README.*
 include strsync/lc_ios9.tsv
+include requirements.txt
+include test-requirements.txt
