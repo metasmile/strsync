@@ -1,7 +1,8 @@
 requests==2.13.0
 googletrans
 chardet
-six
+six>=1.11
 fuzzywuzzy
 colorama
 babel
+unicodedata2

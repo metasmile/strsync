@@ -8,6 +8,12 @@
 import codecs
 from setuptools import setup
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
+with open('test-requirements.txt') as f:
+    test_required = f.read().splitlines()
+
 setup(
     name="strsync",
     version="1.3",
@@ -38,17 +44,6 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 2",
     ],
-    install_requires=[
-        'babel',
-        'googletrans',
-        'chardet',
-        'requests == 2.13.0',
-        'six',
-        'fuzzywuzzy',
-        'colorama'
-    ],
-    tests_require=[
-        'pytest',
-        'coveralls',
-    ]
+    install_requires=required,
+    tests_require=test_required
 )
