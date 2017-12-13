@@ -105,3 +105,44 @@ def map_locale_codes(matching_codes, for_codes):
         if m:
             mapped[c] = m
     return mapped
+
+def default_supporting_xcode_lang_codes():
+    return [
+        'el',
+        'fr_CA',
+        'vi',
+        'ca',
+        'it',
+        'zh_HK',
+        'ar',
+        'cs',
+        'id',
+        'es',
+        'en-GB',
+        'ru',
+        'nl',
+        'pt',
+        'no',
+        'tr',
+        'en-AU',
+        'th',
+        'ro',
+        'pl',
+        'fr',
+        'uk',
+        'hr',
+        'de',
+        'hu',
+        'hi',
+        'fi',
+        'da',
+        'ja',
+        'he',
+        'pt_PT',
+        'zh_TW',
+        'sv',
+        'es_MX',
+        'sk',
+        'zh_CN',
+        'ms'
+    ]

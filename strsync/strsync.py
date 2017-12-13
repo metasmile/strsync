@@ -69,9 +69,7 @@ def main():
     # [language designator]-[script designator] az-Arab, zh-Hans
     # [language designator]-[script designator]_[region designator] zh-Hans_HK
     print '(i) Initializing for supported languages ...'
-    __DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__ = ['el','fr_CA','vi','ca','it','zh_HK','ar','cs','id','es','en-GB','ru','nl','pt','no','tr','en-AU','th','ro','pl','fr','uk','hr','de','hu','hi','fi','da','ja','he','pt_PT','zh_TW','sv','es_MX','sk','zh_CN','ms']
-
-    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__DEFAULT_XCODE_LPROJ_SUPPORTED_LOCALES__, strtrans.supported_locales())
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(strlocale.default_supporting_xcode_lang_codes(), strtrans.supported_locales())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
 
     print Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)), Style.RESET_ALL
