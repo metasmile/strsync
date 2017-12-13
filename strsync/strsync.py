@@ -71,8 +71,8 @@ def main():
     print '(i) Initializing for supported languages ...'
     __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(strlocale.default_supporting_xcode_lang_codes(), strtrans.supported_locales())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
-
     print Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)), Style.RESET_ALL
+    print __XCODE_LPROJ_SUPPORTED_LOCALES__
 
     #handle base
     if __BASE_LANG__.endswith(__DIR_SUFFIX__):

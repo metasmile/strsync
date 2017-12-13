@@ -108,6 +108,7 @@ def map_locale_codes(matching_codes, for_codes):
 
 def default_supporting_xcode_lang_codes():
     return [
+        'ko',
         'el',
         'fr_CA',
         'vi',
