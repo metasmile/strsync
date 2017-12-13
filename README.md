@@ -6,7 +6,7 @@
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
 [![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
 <br>
-<a href="https://flattr.com/@strsync" title="Donate to this project using Flattr"><img src="http://api.flattr.com/button/flattr-badge-large.png" height="30" alt="Flattr donate button" /></a>
+<a href="https://flattr.com/@stringsync" title="Donate to this project using Flattr"><img src="http://api.flattr.com/button/flattr-badge-large.png" height="30" alt="Flattr donate button" /></a>
 <a href="https://www.paypal.me/strsync" alt="Support via Paypal"><img src="https://cdn.rawgit.com/twolfson/paypal-github-button/1.0.0/dist/button.svg" height="30"></a>
 
 
