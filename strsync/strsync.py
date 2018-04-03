@@ -4,8 +4,10 @@
 
 from __future__ import print_function
 import strparser, strlocale, strtrans
+from strxcodeproj import *
 import time, os, sys, argparse, codecs, csv
 from os.path import expanduser
+import glob, fnmatch
 from fuzzywuzzy import fuzz
 from colorama import init
 from colorama import Fore, Back, Style
@@ -25,6 +27,12 @@ def resolve_file_path(file):
 def join_path_all(target_dir, target_files):
     return map(lambda f: os.path.join(target_dir, f), target_files)
 
+def find_files(directory, pattern):
+    matches = []
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, pattern):
+            matches.append(os.path.join(root, filename))
+    return matches
 
 def rget(dictionary, key):
     items = []
@@ -72,8 +80,40 @@ def main():
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
     __FILE_DICT_SUFFIX__ = ".stringsdict"
-    __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
+    __RESOURCE_PATH__ = expanduser(args['target path'])
+
+    if not glob.glob(os.path.join(__RESOURCE_PATH__, "./*.lproj")):
+        print("[i] Not found localization resources with <target path> parameter.")
+        print("[i] Start to automatically detect ...")
+
+        project_path_glob = glob.glob("./*.xcodeproj")
+        if not len(project_path_glob):
+            print("[!] Not found Xcode project (*.xcodeproj) in current path. Try again with.")
+            sys.exit(1)
+
+        project_path = project_path_glob[0]
+        try:
+            project = XCodeProject(os.path.join(os.getcwd(), project_path))
+            base_lproj_path = None
+            for o in project.objects.itervalues():
+                if 'lastKnownFileType' in o and o['lastKnownFileType'] == 'text.plist.strings' and o['name'] == __BASE_LANG__:
+                    base_lproj_path = o['path']
+                    break
+
+            for root, dirs, files in os.walk(os.getcwd()):
+                for f in files:
+                    if os.path.basename(f) == os.path.basename(base_lproj_path):
+                        print(f,root)
+                        # __RESOURCE_PATH__ = ''
+
+        except XCodeProjectReadException, exc:
+            print(exc)
+            sys.exit(1)
+
+    print("now developing")
+    sys.exit(0)
+
     __EXCLUDING_LANGS__ = args['excluding_lang_names']
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
     __KEYS_FORCE_TRANSLATE_ALL__ = (
