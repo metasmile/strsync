@@ -83,28 +83,48 @@ def main():
     __BASE_LANG__ = args['base_lang_name']
     __RESOURCE_PATH__ = expanduser(args['target path'])
 
+    print(__RESOURCE_PATH__)
+
     if not glob.glob(os.path.join(__RESOURCE_PATH__, "./*.lproj")):
         print("[i] Not found localization resources with <target path> parameter.")
         print("[i] Start to automatically detect ...")
 
-        project_path_glob = glob.glob("./*.xcodeproj")
+        project_path_glob = glob.glob(os.path.join(__RESOURCE_PATH__, "./*.xcodeproj"))
         if not len(project_path_glob):
             print("[!] Not found Xcode project (*.xcodeproj) in current path. Try again with.")
             sys.exit(1)
 
         project_path = project_path_glob[0]
+        print(project_path)
         try:
-            project = XCodeProject(os.path.join(os.getcwd(), project_path))
+            project = XCodeProject(project_path)
             base_lproj_path = None
-            for o in project.objects.itervalues():
+            base_lproj_key = None
+
+            objects_kv = [(o, project.objects[o]) for o in project.objects]
+            for k, o in objects_kv:
+                if 'name' in o and o['name'] == os.path.basename(project_path):
+                    print(o,os.path.basename(project_path))
+
                 if 'lastKnownFileType' in o and o['lastKnownFileType'] == 'text.plist.strings' and o['name'] == __BASE_LANG__:
-                    base_lproj_path = o['path']
+                    base_lproj_path = os.path.join(o['name']+".lproj", o['path'])
+                    base_lproj_key = k
+                    print("----",k,o)
                     break
 
-            for root, dirs, files in os.walk(os.getcwd()):
+            for k, o in objects_kv:
+                if 'children' in o and base_lproj_key in o.children:
+                    print(o)
+
+            print(project_path)
+            print(base_lproj_path)
+
+            for root, dirs, files in os.walk(__RESOURCE_PATH__):
+                if os.path.basename(root).startswith('.'):
+                    pass
                 for f in files:
                     if os.path.basename(f) == os.path.basename(base_lproj_path):
-                        print(f,root)
+                        print(f, root, dirs)
                         # __RESOURCE_PATH__ = ''
 
         except XCodeProjectReadException, exc:
