@@ -161,7 +161,7 @@ def default_supporting_xcode_lang_codes():
 
 def secondary_supporting_xcode_lang_codes():
     return [
-        'hy', 'az', 'gu', 'co', 'af', 'sw', 'is', 'am', 'eo', 'iw', 'ne', 'st', 'cy', 'gd', 'km', 'ga', 'zu', 'eu',
+        'hy', 'az', 'gu', 'co', 'af', 'sw', 'is', 'am', 'eo', 'ne', 'st', 'cy', 'gd', 'km', 'ga', 'zu', 'eu',
         'et', 'xh',
         'gl', 'ig', 'ps', 'sr', 'lb', 'lo', 'tl', 'lv', 'ny', 'lt', 'pa', 'tg', 'te', 'ta', 'yi', 'bg', 'sm', 'yo',
         'sl', 'fy', 'bn', 'jw', 'ka', 'ht', 'fa', 'bs', 'ha', 'mg', 'uz', 'kk', 'ml', 'sq', 'mn', 'mi', 'kn', 'mk',
