@@ -56,7 +56,7 @@ def main():
                         required=False, nargs='*')
     parser.add_argument('-v', '--verify-results', help='Verify translated results via reversed results', default=None,
                         required=False, nargs='*')
-    parser.add_argument('-s', '--include-secondary-languages', help='Include Secondary Languages. see', default=None,
+    parser.add_argument('-s', '--include-secondary-languages', help='Include Additional Secondary Languages. (+63 language codes)', default=None,
                         required=False, nargs='*')
     parser.add_argument('-i', '--ignore-unverified-results',
                         help='Allows ignoring unverified results when appending them.', default=None, required=False,

@@ -52,22 +52,24 @@ optional arguments:
                         A base(or source) localizable resource
                         name.(default='Base'), (e.g. "Base" via 'Base.lproj',
                         "en" via 'en.lproj')
-  -x, --excluding-lang-names [EXCLUDING_LANG_NAMES ...]
+  -x, --excluding-lang-names
                         A localizable resource name that you want to exclude.
                         (e.g. "Base" via 'Base.lproj', "en" via 'en.lproj')
-  -f, --force-translate-keys [FORCE_TRANSLATE_KEYS ...]
+  -f, --force-translate-keys
                         Keys in the strings to update and translate by force.
-  -o, --following-base-keys [FOLLOWING_BASE_KEYS ...]
+  -o, --following-base-keys
                         Keys in the strings to follow from "Base".
   -l, --following-base-keys-if-length-longer
                         Keys in the strings to follow from "Base"
                         if its length longer than the length of "Base" value.
   -c, --ignore-comments
                         Allows ignoring comment synchronization.
-  -v, --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
+  -v, --verify-results
                         Verify translated results via reversed results
-  -i, --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
+  -i, --ignore-unverified-results
                         Allows ignoring unverified results when appending them.
+  -s, --include-secondary-languages
+                        Include Additional Secondary Languages. (+63 language codes)
 ```
 
 ### Examples to use
