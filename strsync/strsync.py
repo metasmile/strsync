@@ -56,6 +56,8 @@ def main():
                         required=False, nargs='*')
     parser.add_argument('-v', '--verify-results', help='Verify translated results via reversed results', default=None,
                         required=False, nargs='*')
+    parser.add_argument('-s', '--include-secondary-languages', help='Include Secondary Languages. see', default=None,
+                        required=False, nargs='*')
     parser.add_argument('-i', '--ignore-unverified-results',
                         help='Allows ignoring unverified results when appending them.', default=None, required=False,
                         nargs='*')
@@ -76,8 +78,7 @@ def main():
     __BASE_LANG__ = args['base_lang_name']
     __EXCLUDING_LANGS__ = args['excluding_lang_names']
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
-    __KEYS_FORCE_TRANSLATE_ALL__ = (
-                                           '--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
+    __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
@@ -86,15 +87,20 @@ def main():
         args['ignore_unverified_results'][0]) if __IGNORE_UNVERIFIED_RESULTS__ and len(
         args['ignore_unverified_results']) else 0
     __VERIFY_TRANS_RESULTS__ = __IGNORE_UNVERIFIED_RESULTS__ or args['verify_results'] is not None
+    __INCLUDE_SECONDARY_LANGUAGES__ = args['include_secondary_languages'] is not None
 
-    # Locale settings
+# Locale settings
     # [language designator] en, fr
     # [language designator]_[region designator] en_GB, zh_HK
     # [language designator]-[script designator] az-Arab, zh-Hans
     # [language designator]-[script designator]_[region designator] zh-Hans_HK
     print('(i) Initializing for supported languages ...')
-    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(strlocale.default_supporting_xcode_lang_codes(),
-                                                                       strtrans.supported_locales())
+    __lang_codes = strlocale.default_supporting_xcode_lang_codes()
+
+    if __INCLUDE_SECONDARY_LANGUAGES__:
+        __lang_codes += strlocale.secondary_supporting_xcode_lang_codes()
+
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locales())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
     print(Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)),
           Style.RESET_ALL)
