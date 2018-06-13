@@ -333,7 +333,12 @@ def main():
                 if notexist_or_empty_file(f):
                     continue
 
-                base_dict[_file] = strings_obj_from_file(f)
+                parsed_obj = strings_obj_from_file(f)
+                if not parsed_obj:
+                    continue
+
+                base_dict[_file] = parsed_obj
+                break
 
     if not base_dict:
         print('[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__))

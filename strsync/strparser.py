@@ -77,6 +77,9 @@ def parse_strings(content="", filename=None):
     if filename is not None:
         content = __get_content(filename=filename)
 
+    if not content:
+        return None
+
     stringset = []
     f = content
     if f.startswith(u'\ufeff'):
