@@ -25,6 +25,18 @@ def __LITERNAL_REPLACEMENT__(id):
     assert isinstance(id, int) and id >= 0, "id is must be an integer and 1 or higher"
     return "{%s}" % ("^" * (id + 1))
 
+def __strip_emoji__(data):
+    if not data:
+        return data
+    if not isinstance(data, basestring):
+        return data
+    try:
+    # UCS-4
+        patt = re.compile(u'([\U00002600-\U000027BF])|([\U0001f300-\U0001f64F])|([\U0001f680-\U0001f6FF])')
+    except re.error:
+    # UCS-2
+        patt = re.compile(u'([\u2600-\u27BF])|([\uD83C][\uDF00-\uDFFF])|([\uD83D][\uDC00-\uDE4F])|([\uD83D][\uDE80-\uDEFF])')
+    return patt.sub('', data)
 
 __QUOTES_RE__ = re.compile(r"\"")
 __QUOTES_REPLACEMENT__ = "'"
@@ -78,7 +90,6 @@ __trans = Translator()
 def supported_locales():
     return [l for l in googletrans.LANGCODES.values()]
 
-
 def translate(strs, to):
     assert len(strs) or isinstance(strs[0], str), "Input variables should be string list"
     pre_items = [item for item in __preprocessing_translate_strs(strs, to)]
@@ -105,7 +116,6 @@ def translate(strs, to):
         # print pre_items[i].trans_input_text, '->' , pre_items[i].trans_output_text
     return __PostprocessingTransItem(pre_items).finalize_strs()
 
-
 def __preprocessing_translate_strs(strs, dest_lang):
     preitems = []
     for s in strs:
@@ -115,8 +125,12 @@ def __preprocessing_translate_strs(strs, dest_lang):
         if strlocale.lang(dest_lang) in __MULTIPLE_SUFFIX_NOT_SUPPORTED_LANGS__:
             otext = re.sub(__MULTIPLE_SUFFIX_RE__, r'\1s\3', otext)
 
-        # process literals
         pretext = otext
+
+        # remove emoji and special characters
+        pretext = __strip_emoji__(pretext)
+
+        # process literals
         found_literals = list(re.finditer(__LITERAL_REGEX__, otext, flags=re.X))
         prematched_literal_items = []
 
