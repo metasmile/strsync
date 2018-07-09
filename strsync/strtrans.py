@@ -83,14 +83,12 @@ class __PostprocessingTransItem(object):
             _str = _str.replace(m.replacement, m.literal, 1)
         return _str
 
-
-__trans = Translator()
-
-
 def supported_locales():
     return [l for l in googletrans.LANGCODES.values()]
 
 def translate(strs, to):
+    __trans = Translator()
+
     assert len(strs) or isinstance(strs[0], str), "Input variables should be string list"
     pre_items = [item for item in __preprocessing_translate_strs(strs, to)]
 
