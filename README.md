@@ -59,9 +59,8 @@ optional arguments:
                         Keys in the strings to update and translate by force.
   -o, --following-base-keys
                         Keys in the strings to follow from "Base".
-  -l, --following-base-keys-if-length-longer
-                        Keys in the strings to follow from "Base"
-                        if its length longer than the length of "Base" value.
+  -l, --cutting-length-ratio-with-base
+                        Keys in the float as the ratio to compare the length of "Base"
   -c, --ignore-comments
                         Allows ignoring comment synchronization.
   -v, --verify-results
