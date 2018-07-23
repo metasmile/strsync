@@ -49,8 +49,8 @@ def main():
                         default=[], required=False, nargs='*')
     parser.add_argument('-o', '--following-base-keys', type=str, help='Keys in the strings to follow from "Base.',
                         default=[], required=False, nargs='+')
-    parser.add_argument('-l', '--following-base-keys-if-length-longer', type=str,
-                        help='Keys in the strings to follow from "Base" if its length longer than length of "Base" value.',
+    parser.add_argument('-l', '--cutting-length-ratio-with-base', type=float,
+                        help='Keys in the float as the ratio to compare the length of "Base"',
                         default=[], required=False, nargs='+')
     parser.add_argument('-c', '--ignore-comments', help='Allows ignoring comment synchronization.', default=None,
                         required=False, nargs='*')
@@ -80,7 +80,8 @@ def main():
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
     __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
-    __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__ = args['following_base_keys_if_length_longer']
+    __CUTTING_LENGTH_RATIO__ = (args['cutting_length_ratio_with_base'] or [0])[0]
+
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
     __IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'] is not None
     __RATIO_TO_IGNORE_UNVERIFIED_RESULTS__ = int(
@@ -235,10 +236,10 @@ def main():
             # exists
             elif k in existing_keys:
 
-                if k in __KEYS_FOLLOW_BASE_IF_LENGTH_LONGER__:
+                if k != "Base" and __CUTTING_LENGTH_RATIO__>0:
 
                     if target_value != base_kv[k] \
-                            and len_unicode(target_value) > len_unicode(base_kv[k]) \
+                            and len_unicode(target_value) > float(len_unicode(base_kv[k]))*__CUTTING_LENGTH_RATIO__ \
                             or needs_update_comment:
 
                         print(Fore.YELLOW + '(!) Length of "', target_value, '" is longer than"', base_kv[k], '" as',
