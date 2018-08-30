@@ -19,7 +19,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('src_path', help='Main swift source path, default=./)',
                     default='./', nargs='?')
-parser.add_argument('dest_l10n_base_path', help='Target Base localization resource path. (root path of Base.lproj, default=./)',
+parser.add_argument('dest_l10n_base_path', help='Target Base Localizable.strings path. (default=./)',
                     default='./', nargs='?')
 parser.add_argument('-k', '--split-key',
                     help='Splitting identifier to extract strings from Swift code. (e.g. "This is string".localized )',
@@ -39,6 +39,8 @@ complied_patterns_by_priority = [
 
 # for excluing format literal -> \(value)
 qs = re.compile(r'\\\((.+)\)', re.I|re.U)
+# for excluing code comment
+cs = re.compile(r'\/\/.*', re.I|re.U)
 
 swift_files = []
 
@@ -51,6 +53,10 @@ for code_file in swift_files:
     rcur = codecs.open(code_file, "r", "utf-8")
     wlines = []
     for i, line in enumerate(rcur.readlines()):
+
+        if cs.search(line):
+            line = cs.sub("", line)
+
         for line_sp in line.split(split_key):
 
             for p in complied_patterns_by_priority:
