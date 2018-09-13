@@ -1,4 +1,4 @@
-[AD] Meet our app using stringsync, Elie - Your next mobile photography assistant. http://elie.cam
+[AD] An App, But Contains Many Photo Apps. Do Everything With Photos - Photo Apps https://get.apps.photo
 
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
