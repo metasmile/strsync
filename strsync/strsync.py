@@ -329,8 +329,8 @@ def main():
     # Init with Base.lproj
     for dir, subdirs, files in walked:
         if os.path.basename(dir) == __BASE_RESOUCE_DIR__:
-            for _file in resolve_file_names(files):
-                f = os.path.join(dir, _file)
+            for _file in resolve_file_names(files):      
+                f = os.path.join(dir, _file)            
                 if notexist_or_empty_file(f):
                     continue
 
@@ -339,7 +339,6 @@ def main():
                     continue
 
                 base_dict[_file] = parsed_obj
-                break
 
     if not base_dict:
         print('[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__))
