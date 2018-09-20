@@ -36,9 +36,20 @@ pip install requests[security]
 Naturally, this tool follow [standard ISO639 1~2 codes](http://www.loc.gov/standards/iso639-2/php/English_list.php) or [apple's official document](https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/LanguageandLocaleIDs/LanguageandLocaleIDs.html) or [this tsv table](https://github.com/metasmile/strsync/blob/master/strsync/lc_ios9.tsv)
 
 ```
-usage: strsync <target localization resource path>
+usage: strsync-runner.py [-h] [-b BASE_LANG_NAME]
+                         [-x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]]
+                         [-f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]]
+                         [-o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]]
+                         [-w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]]
+                         [-l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]]
+                         [-c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]]
+                         [-v [VERIFY_RESULTS [VERIFY_RESULTS ...]]]
+                         [-s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]]
+                         [-i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]]
+                         [target path]
 
-Automatically translate and synchronize .strings files from defined base language.
+Automatically translate and synchronize .strings files from defined base
+language.
 
 positional arguments:
   target path           Target localization resource path. (root path of
@@ -46,27 +57,34 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b, --base-lang-name BASE_LANG_NAME
+  -b BASE_LANG_NAME, --base-lang-name BASE_LANG_NAME
                         A base(or source) localizable resource
                         name.(default='Base'), (e.g. "Base" via 'Base.lproj',
                         "en" via 'en.lproj')
-  -x, --excluding-lang-names
+  -x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...], --excluding-lang-names EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]
                         A localizable resource name that you want to exclude.
                         (e.g. "Base" via 'Base.lproj', "en" via 'en.lproj')
-  -f, --force-translate-keys
+  -f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]], --force-translate-keys [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]
                         Keys in the strings to update and translate by force.
-  -o, --following-base-keys
-                        Keys in the strings to follow from "Base".
-  -l, --cutting-length-ratio-with-base
-                        Keys in the float as the ratio to compare the length of "Base"
-  -c, --ignore-comments
+                        (input nothing for all keys.)
+  -o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...], --following-base-keys FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]
+                        Keys in the strings to follow from "Base.
+  -w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]], --following-base-if-not-exists [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]
+                        With this option, all keys will be followed up with
+                        base values if they does not exist.
+  -l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...], --cutting-length-ratio-with-base CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]
+                        Keys in the float as the ratio to compare the length
+                        of "Base"
+  -c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]], --ignore-comments [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]
                         Allows ignoring comment synchronization.
-  -v, --verify-results
+  -v [VERIFY_RESULTS [VERIFY_RESULTS ...]], --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
                         Verify translated results via reversed results
-  -i, --ignore-unverified-results
-                        Allows ignoring unverified results when appending them.
-  -s, --include-secondary-languages
-                        Include Additional Secondary Languages. (+63 language codes)
+  -s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]], --include-secondary-languages [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]
+                        Include Additional Secondary Languages. (+63 language
+                        codes)
+  -i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]], --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
+                        Allows ignoring unverified results when appending
+                        them.
 ```
 
 ### Examples to use
