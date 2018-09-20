@@ -38,6 +38,7 @@ Decimal: %d  Justified: %.6d
 %10c%5hc%5C%5lc
 The temp is %.*f
 %ss%lii
+${replacement}
 %*.*s | %.3d | %lC | %s%%%02d'''
 
 cfmt='''\
@@ -49,8 +50,10 @@ cfmt='''\
 (?:\.(?:\d+|\*))?                  # precision
 (?:h|l|ll|w|I|I32|I64)?            # size
 [cCdiouxXeEfgGaAnpsSZ@]            # type
-) |                                # OR
-%%)                                # literal "%%"
+)                                  # OR
+| \$\{.+\}                         # replacement for property "%{appName}"
+| %%                               # literal "%%"
+)
 '''
 
 for line in lines.splitlines():

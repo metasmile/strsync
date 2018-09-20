@@ -13,8 +13,10 @@ __LITERAL_REGEX__ = '''\
     (?:\.(?:\d+|\*))?                  # precision
     (?:h|l|ll|w|I|I32|I64)?            # size
     [cCdiouxXeEfgGaAnpsSZ@]            # type
-    ) |                                # OR
-    %%)                                # literal "%%"
+    )                                  # OR
+    | \$\{.+\}                         # replacement for property "%{appName}"
+    | %%                               # literal "%%"
+    )
 '''
 __LITERNAL_FORMAT_RE__ = re.compile(__LITERAL_REGEX__, flags=re.X)
 
