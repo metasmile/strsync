@@ -16,7 +16,7 @@ with open('test-requirements.txt') as f:
 
 setup(
     name="strsync",
-    version="1.4.8",
+    version="1.4.9",
     packages=[
         'strsync',
     ],
