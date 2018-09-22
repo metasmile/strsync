@@ -1,5 +1,7 @@
-import googletrans
-from googletrans import Translator
+from google.cloud import translate
+
+# Install: https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python
+# Docs: https://googlecloudplatform.github.io/google-cloud-python/latest/translate/usage.html
 import strlocale
 import re
 
@@ -85,21 +87,21 @@ class __PostprocessingTransItem(object):
             _str = _str.replace(m.replacement, m.literal, 1)
         return _str
 
-def supported_locales():
-    return [l for l in googletrans.LANGCODES.values()]
+def supported_locale_codes():
+    return [l[u'language'] for l in translate.Client().get_languages()]
 
-def translate(strs, to):
-    __trans = Translator()
+def translate_strs(strs, to):
+    __trans = translate.Client(target_language=to)
 
     assert len(strs) or isinstance(strs[0], str), "Input variables should be string list"
     pre_items = [item for item in __preprocessing_translate_strs(strs, to)]
 
-    translated_items = __trans.translate([item.trans_input_text for item in pre_items], dest=to)
+    translated_items = __trans.translate([item.trans_input_text for item in pre_items])
     assert len(translated_items) == len(pre_items), "the numbers of input items and translated items must be same."
 
     # map results
     for i, t in enumerate(translated_items):
-        _result = t.text
+        _result = t[u'translatedText']
         _pre_trans_item = pre_items[i]
 
         _literal_replacement_exist = bool(len(_pre_trans_item.matched_literal_items))

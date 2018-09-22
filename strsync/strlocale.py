@@ -132,7 +132,7 @@ def default_supporting_xcode_lang_codes():
         'ru',
         'nl',
         'pt',
-        'no',
+        'nb',
         'tr',
         'th',
         'ro',
@@ -151,7 +151,6 @@ def default_supporting_xcode_lang_codes():
         'zh-Hant',
         'sv',
         'sk',
-        'nb',
         'ms'
     ]
 

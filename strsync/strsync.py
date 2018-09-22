@@ -104,7 +104,7 @@ def main():
     if __INCLUDE_SECONDARY_LANGUAGES__:
         __lang_codes += strlocale.secondary_supporting_xcode_lang_codes()
 
-    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locales())
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locale_codes())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
     print(Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)),
           Style.RESET_ALL)
@@ -192,12 +192,12 @@ def main():
         reversed_translated_kv = {}
         if len(adding_keys):
             print('Translating...')
-            translated_kv = dict(zip(adding_keys, strtrans.translate([base_kv[k] for k in adding_keys], lc)))
+            translated_kv = dict(zip(adding_keys, strtrans.translate_strs([base_kv[k] for k in adding_keys], lc)))
 
             if __VERIFY_TRANS_RESULTS__:
                 print('Reversing results and matching...')
                 reversed_translated_kv = dict(
-                    zip(adding_keys, strtrans.translate([translated_kv[_ak] for _ak in adding_keys], 'en')))
+                    zip(adding_keys, strtrans.translate_strs([translated_kv[_ak] for _ak in adding_keys], 'en')))
 
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
@@ -345,7 +345,6 @@ def main():
                     continue
 
                 base_dict[_file] = parsed_obj
-                break
 
     if not base_dict:
         print('[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__))
