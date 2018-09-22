@@ -23,6 +23,12 @@ While the actual i18n work, my biggest desire was to just quickly fill many empt
 pip install strsync
 ```
 
+#### Enable Google Cloud Translation Python API
+
+Set your account and authentication credentials up with Google's guide for local envirnment.
+
+https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python 
+
 #### Update Python SSL packages if needed
 
 this is not required for python-2.7.9+
