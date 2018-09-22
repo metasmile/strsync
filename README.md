@@ -29,6 +29,11 @@ Set your account and authentication credentials up with Google's guide for local
 
 https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python 
 
+If you can't use Translation feature, use '-w' option to copy all items from Base language.
+```
+$ strsync ./myapp/Resources/Localizations -w
+```
+
 #### Update Python SSL packages if needed
 
 this is not required for python-2.7.9+
