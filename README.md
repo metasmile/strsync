@@ -103,6 +103,11 @@ Define specific path you want.
 $ strsync ./myapp/Resources/Localizations
 ```
 
+Copy all items from Base language without translation.
+```
+$ strsync ./myapp/Resources/Localizations -w
+```
+
 Excluding japanese, spanish, finnish
 ```
 $ strsync ./myapp/Resources/Localizations -x ja es fi
