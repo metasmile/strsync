@@ -10,7 +10,7 @@ Apple strings file handler/compiler
 from __future__ import print_function
 from __future__ import absolute_import
 import codecs, re, chardet
-
+import plistlib, re
 """
 Handler for Apple STRINGS translation files.
 
@@ -18,7 +18,6 @@ Apple strings files *must* be encoded in cls.ENCODING encoding.
 """
 
 format_encoding = 'UTF-16'
-
 
 def __unescape_key(s):
     return s.replace('\\\n', '')
