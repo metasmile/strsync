@@ -3,7 +3,7 @@
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
 from __future__ import print_function
-import strparser, strlocale, strtrans
+import strparser, strparser_intentdefinition, strlocale, strtrans
 import time, os, sys, argparse, codecs, csv
 from os.path import expanduser
 from fuzzywuzzy import fuzz
@@ -75,6 +75,7 @@ def main():
 
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
+    __FILE_INTENT_SUFFIX__ = ".intentdefinition"
     __FILE_DICT_SUFFIX__ = ".stringsdict"
     __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
@@ -129,9 +130,6 @@ def main():
     print(Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__), Style.RESET_ALL)
 
     global_result_logs = {}
-
-    def strings_obj_from_file(file):
-        return strparser.parse_strings(filename=file)
 
     def merge_two_dicts(x, y):
         '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -292,12 +290,12 @@ def main():
         return updated_content and (len(adding_keys) > 0 or len(updated_keys) > 0 or len(
             removing_keys) > 0), updated_content, translated_kv, target_error_lines, target_verified_items
 
-    def write_file(target_file, list_of_content):
+    def write_file(target_file, parsed_list):
         suc = False
         try:
             f = codecs.open(target_file, "w", "utf-8")
             contents = ''
-            for content in list_of_content:
+            for content in parsed_list:
                 if content['comment']:
                     contents += '/*{0}*/'.format(content['comment']) + '\n'
                 contents += '"{0}" = "{1}";'.format(content['key'], content['value']) + '\n'
@@ -324,7 +322,7 @@ def main():
         return not os.path.exists(target_file) or os.path.getsize(target_file) == 0
 
     def resolve_file_names(target_file_names):
-        return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
+        return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__) or f.endswith(__FILE_INTENT_SUFFIX__), target_file_names))
 
     base_dict = {}
     results_dict = {}
@@ -337,10 +335,25 @@ def main():
         if os.path.basename(dir) == __BASE_RESOUCE_DIR__:
             for _file in resolve_file_names(files):
                 f = os.path.join(dir, _file)
+
                 if notexist_or_empty_file(f):
                     continue
 
-                parsed_obj = strings_obj_from_file(f)
+                parsed_obj = None
+
+                # parse .strings
+                if f.endswith(__FILE_SUFFIX__):
+                    parsed_obj = strparser.parse_strings(filename=f)
+
+                # parse .intentdefinition
+                elif f.endswith(__FILE_INTENT_SUFFIX__):
+                    print('[i] Found "{0}" in {1}. Parse ....'.format(os.path.basename(f), __BASE_RESOUCE_DIR__))
+                    parsed_obj = strparser_intentdefinition.parse_strings(f)
+                    # replace to dest extenstion .strings
+                    _file = _file.replace(__FILE_INTENT_SUFFIX__, __FILE_SUFFIX__)
+                    # write original .strings file to local
+                    write_file(os.path.join(dir, _file), parsed_obj)
+
                 if not parsed_obj:
                     continue
 
