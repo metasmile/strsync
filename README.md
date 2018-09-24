@@ -107,11 +107,13 @@ optional arguments:
 ### Examples to use
 ```
 ~/Documents/myapp/myapp/Resources/Localizations$ strsync
+~/Documents/myapp/myapp/Resources/Intents$ strsync
 ```
 
-Define specific path you want.
+Define specific path you want. A parent path of *.lproj(s).
 ```
 $ strsync ./myapp/Resources/Localizations
+$ strsync ./myapp/Resources/Intents
 ```
 
 Copy all items from Base language without translation.
