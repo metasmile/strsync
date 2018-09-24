@@ -1,5 +1,3 @@
-[AD] An App, But Contains Many Photo Apps. Do Everything With Photos - Photo Apps https://get.apps.photo
-
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
 [![Awesome](https://img.shields.io/badge/Awesome-iOS-red.svg)](https://github.com/vsouza/awesome-ios#localization)
