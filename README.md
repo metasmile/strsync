@@ -8,7 +8,15 @@
 <a href="https://www.paypal.me/strsync" alt="Support via Paypal"><img src="https://img.shields.io/badge/Donate-Paypal-blue.svg"></a>
 
 
-Automatically translate and synchronize '.strings' files from the defined base language.
+<a href="https://www.jetbrains.com/opensource/"><img width="30%"  src="https://www.evernote.com/l/AEF5EOUVxAROd67OdGLaPco80G0yzfocQVkB/image.png"><a/><a href="https://www.jetbrains.com/pycharm/"><img width="30%"  src="https://www.evernote.com/l/AEEs7Vud5zZPppV0SbewK3Rl37t2gzCMvccB/image.png"></a>
+
+*Supported by Jetbrains Open Source License Program*
+
+
+
+----
+
+**Automatically translate and synchronize '.strings' files from the defined base language**
 
 The basic concept of this python CLI tool is straightforward file name based one-way synchronizer. If you are running, other localized resources will have the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
 
@@ -27,7 +35,7 @@ pip install strsync
 
 Set your account and authentication credentials up with Google's guide for local envirnment.
 
-https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python 
+https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python
 
 If you can't use Translation feature, use '-w' option to copy all items from Base language.
 ```
