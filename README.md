@@ -2,8 +2,7 @@
 
 [![Awesome](https://img.shields.io/badge/Awesome-iOS-red.svg)](https://github.com/vsouza/awesome-ios#localization)
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
-[![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
-<a href="https://www.paypal.me/strsync" alt="Support via Paypal"><img src="https://img.shields.io/badge/Donate-Paypal-blue.svg"></a>
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 
 <a href="https://www.jetbrains.com/opensource/"><img width="30%"  src="https://www.evernote.com/l/AEF5EOUVxAROd67OdGLaPco80G0yzfocQVkB/image.png"><a/><a href="https://www.jetbrains.com/pycharm/"><img width="30%"  src="https://www.evernote.com/l/AEEs7Vud5zZPppV0SbewK3Rl37t2gzCMvccB/image.png"></a>
