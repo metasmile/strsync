@@ -45,6 +45,9 @@ def __strip_emoji__(data):
 __QUOTES_RE__ = re.compile(r"\"")
 __QUOTES_REPLACEMENT__ = "'"
 
+__encoded_apostrophe_RE__ = re.compile(r"&#39;") #  regex: "&#[0-9]{1,};"
+__encoded_apostrophe_REPLACEMENT__ = "'"
+
 __MULTIPLE_SUFFIX_RE__ = re.compile(r'(.*)(\(s\))(.*)')
 __MULTIPLE_SUFFIX_ALTER_REPLACEMENT__ = "s"
 __MULTIPLE_SUFFIX_NOT_SUPPORTED_LANGS__ = ['zh', 'ro', 'vi']
@@ -79,8 +82,11 @@ class __PostprocessingTransItem(object):
 
     @staticmethod
     def __postprocess_str(pretrans_item):
+        _str = pretrans_item.trans_output_text.strip()
         # remove Quotes
-        _str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, pretrans_item.trans_output_text.strip())
+        _str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, _str)
+        # remove Encoded Quotes
+        _str = __encoded_apostrophe_RE__.sub(__encoded_apostrophe_REPLACEMENT__, _str)
         # replace tp liternal replacement
         for i, m in enumerate(pretrans_item.matched_literal_items):
             # print m.replacement, '->', m.literal
