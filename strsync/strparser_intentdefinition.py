@@ -64,6 +64,8 @@ def parse_strings(file):
             id, value = kObj['id'], kObj['value']
 
             if len(value):
+                assert(not '\n' in value, "[!]WARNING: A value contains newline character. Please confirm your value in the *.intentdefinition as a raw xml source.")
+
                 found_enum_params = list(re.finditer('\$\{(.+)\}', value, flags=re.X))
                 if found_enum_params:
                     for m in found_enum_params:
