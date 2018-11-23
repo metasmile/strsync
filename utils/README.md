@@ -44,6 +44,14 @@ $(which python) ./genl10n.py \
 
 genusrl10n.py lets developer can parse/convert user's translation files into Xcode project's localizable resource file such as Localizable.strings. Only modified values of existed keys in Localizable.strings file will be changed.  
 
+Source file name format should be:
+```text
+/dir/{locale code to match with Localizable}_XXXXXX.txt
+
+e.g: fr_ContributorName(email.com).txt
+```
+
+
 1. An example from user's translation file.
 
 The content of fr_XXXXX.txt
