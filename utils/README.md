@@ -39,3 +39,44 @@ $(which python) ./genl10n.py \
 "any string to localized" = "any string to localized";
 ~
 ```
+
+# genUsrL10N
+
+genusrl10n.py lets developer can parse/convert user's translation files into Xcode project's localizable resource file such as Localizable.strings. Only modified values of existed keys in Localizable.strings file will be changed.  
+
+1. An example from user's translation file.
+
+The content of fr_XXXXX.txt
+
+```text
+Reverse
+= Sens inverse
+
+Select this photo
+= Sélectionnez cette photo
+
+Write
+= Écrire
+```
+
+The content of ./myProject/Resources/Localizations/fr.lproj/Localizable.strings
+
+```text
+"Reverse" = "Some wrongly translated french string";
+"Select this photo" = "Some wrongly translated french string";
+"Write" = "Some wrongly translated french string";
+```
+
+2. To perform this tool
+
+```bash
+python ./genusrl10n.py ./userl10n/ ./myProject/Resources/Localizations/
+```
+
+3. Result
+
+```text
+"Reverse" = "Sens inverse";
+"Select this photo" = "Sélectionnez cette photo";
+"Write" = "Écrire";
+```
