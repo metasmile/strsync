@@ -17,7 +17,7 @@
 
 **Automatically translate and synchronize '.strings' files from the defined base language**
 
-<img src="https://gitcdn.xyz/repo/metasmile/strsync/master/usage_sample.gif">
+<img src="https://gitcdn.xyz/cdn/metasmile/strsync/bccf2ff1cb4a4d5585460e8cfa5ffc9d9fd60b98/usage_sample.gif">
 
 The basic concept of this python CLI tool is straightforward file name based one-way synchronizer. If you are running, other localized resources will have the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
 
