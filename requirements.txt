@@ -1,8 +1,8 @@
-requests==2.13.0
-googletrans
+requests>=2.13.0
 chardet
 six>=1.11
 fuzzywuzzy
+google-cloud-translate
 colorama
 babel
 unicodedata2

@@ -16,7 +16,7 @@ with open('test-requirements.txt') as f:
 
 setup(
     name="strsync",
-    version="1.4.6",
+    version="1.6.1",
     packages=[
         'strsync',
     ],
@@ -30,7 +30,7 @@ setup(
         'README.rst', encoding='UTF-8'
     ).read(),
     license="MIT",
-    keywords="translation microsoft strsync strings localizable l10n i18n ios xcode osx mac",
+    keywords="translation google strsync strings localizable l10n i18n ios xcode osx mac",
     url="https://github.com/metasmile/strsync",
     include_package_data=True,
     classifiers=[

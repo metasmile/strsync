@@ -1,18 +1,25 @@
-[AD] An App, But Contains Many Photo Apps. Do Everything With Photos - Photo Apps https://get.apps.photo
-
 ![](https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg)
 
 [![Awesome](https://img.shields.io/badge/Awesome-iOS-red.svg)](https://github.com/vsouza/awesome-ios#localization)
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
-[![License](https://img.shields.io/pypi/l/strsync.svg)](http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)
-<a href="https://www.paypal.me/strsync" alt="Support via Paypal"><img src="https://img.shields.io/badge/Donate-Paypal-blue.svg"></a>
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![twitter: @gitmerge](http://img.shields.io/badge/twitter-%40gitmerge-blue.svg?style=flat)](https://twitter.com/gitmerge)
 
 
-Automatically translate and synchronize '.strings' files from the defined base language.
+<a href="https://www.jetbrains.com/opensource/"><img width="30%"  src="https://www.evernote.com/l/AEF5EOUVxAROd67OdGLaPco80G0yzfocQVkB/image.png"><a/><a href="https://www.jetbrains.com/pycharm/"><img width="30%"  src="https://www.evernote.com/l/AEEs7Vud5zZPppV0SbewK3Rl37t2gzCMvccB/image.png"></a>
+
+*Supported by Jetbrains Open Source License Program*
+
+
+
+----
+
+
+**Automatically translate and synchronize '.strings' files from the defined base language**
+
+<img src="https://gitcdn.xyz/cdn/metasmile/strsync/bccf2ff1cb4a4d5585460e8cfa5ffc9d9fd60b98/usage_sample.gif">
 
 The basic concept of this python CLI tool is straightforward file name based one-way synchronizer. If you are running, other localized resources will have the same key with automatically translated strings. Of course, string on the key that already exists will not be modified at all.
-
-While the actual i18n work, my biggest desire was to just quickly fill many empty strings first. This tool has been made for that purpose. In a normal project, automatic translation is sufficient. Because They are always simple sentences. Yes, No, Do it, Not agree, etc.. As you know all translation results of this tool is just based on the Google Translator. Stringsync uses unofficial google ajax translation APIs. So no account and API key is required. And please note that, in case of more complex, inspections by human will be required for exact results. But you may save very much of your time!
 
 ![](https://github.com/metasmile/strsync/blob/master/structure.png)
 
@@ -21,6 +28,17 @@ While the actual i18n work, my biggest desire was to just quickly fill many empt
 ### Install
 ```
 pip install strsync
+```
+
+#### Enable Google Cloud Translation Python API
+
+Set your account and authentication credentials up with Google's guide for local envirnment.
+
+https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python
+
+If you can't use Translation feature, use '-w' option to copy all items from Base language.
+```
+$ strsync ./myapp/Resources/Localizations -w
 ```
 
 #### Update Python SSL packages if needed
@@ -36,9 +54,20 @@ pip install requests[security]
 Naturally, this tool follow [standard ISO639 1~2 codes](http://www.loc.gov/standards/iso639-2/php/English_list.php) or [apple's official document](https://developer.apple.com/library/ios/documentation/MacOSX/Conceptual/BPInternational/LanguageandLocaleIDs/LanguageandLocaleIDs.html) or [this tsv table](https://github.com/metasmile/strsync/blob/master/strsync/lc_ios9.tsv)
 
 ```
-usage: strsync <target localization resource path>
+usage: strsync-runner.py [-h] [-b BASE_LANG_NAME]
+                         [-x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]]
+                         [-f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]]
+                         [-o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]]
+                         [-w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]]
+                         [-l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]]
+                         [-c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]]
+                         [-v [VERIFY_RESULTS [VERIFY_RESULTS ...]]]
+                         [-s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]]
+                         [-i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]]
+                         [target path]
 
-Automatically translate and synchronize .strings files from defined base language.
+Automatically translate and synchronize .strings files from defined base
+language.
 
 positional arguments:
   target path           Target localization resource path. (root path of
@@ -46,37 +75,51 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -b, --base-lang-name BASE_LANG_NAME
+  -b BASE_LANG_NAME, --base-lang-name BASE_LANG_NAME
                         A base(or source) localizable resource
                         name.(default='Base'), (e.g. "Base" via 'Base.lproj',
                         "en" via 'en.lproj')
-  -x, --excluding-lang-names
+  -x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...], --excluding-lang-names EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]
                         A localizable resource name that you want to exclude.
                         (e.g. "Base" via 'Base.lproj', "en" via 'en.lproj')
-  -f, --force-translate-keys
+  -f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]], --force-translate-keys [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]
                         Keys in the strings to update and translate by force.
-  -o, --following-base-keys
-                        Keys in the strings to follow from "Base".
-  -l, --cutting-length-ratio-with-base
-                        Keys in the float as the ratio to compare the length of "Base"
-  -c, --ignore-comments
+                        (input nothing for all keys.)
+  -o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...], --following-base-keys FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]
+                        Keys in the strings to follow from "Base.
+  -w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]], --following-base-if-not-exists [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]
+                        With this option, all keys will be followed up with
+                        base values if they does not exist.
+  -l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...], --cutting-length-ratio-with-base CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]
+                        Keys in the float as the ratio to compare the length
+                        of "Base"
+  -c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]], --ignore-comments [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]
                         Allows ignoring comment synchronization.
-  -v, --verify-results
+  -v [VERIFY_RESULTS [VERIFY_RESULTS ...]], --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
                         Verify translated results via reversed results
-  -i, --ignore-unverified-results
-                        Allows ignoring unverified results when appending them.
-  -s, --include-secondary-languages
-                        Include Additional Secondary Languages. (+63 language codes)
+  -s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]], --include-secondary-languages [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]
+                        Include Additional Secondary Languages. (+63 language
+                        codes)
+  -i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]], --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
+                        Allows ignoring unverified results when appending
+                        them.
 ```
 
 ### Examples to use
 ```
 ~/Documents/myapp/myapp/Resources/Localizations$ strsync
+~/Documents/myapp/myapp/Resources/Intents$ strsync
 ```
 
-Define specific path you want.
+Define specific path you want. A parent path of *.lproj(s).
 ```
 $ strsync ./myapp/Resources/Localizations
+$ strsync ./myapp/Resources/Intents
+```
+
+Copy all items from Base language without translation.
+```
+$ strsync ./myapp/Resources/Localizations -w
 ```
 
 Excluding japanese, spanish, finnish

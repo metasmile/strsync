@@ -3,7 +3,7 @@
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
 from __future__ import print_function
-import strparser, strlocale, strtrans
+import strparser, strparser_intentdefinition, strlocale, strtrans
 import time, os, sys, argparse, codecs, csv
 from os.path import expanduser
 from fuzzywuzzy import fuzz
@@ -49,6 +49,8 @@ def main():
                         default=[], required=False, nargs='*')
     parser.add_argument('-o', '--following-base-keys', type=str, help='Keys in the strings to follow from "Base.',
                         default=[], required=False, nargs='+')
+    parser.add_argument('-w', '--following-base-if-not-exists', type=str, help='With this option, all keys will be followed up with base values if they does not exist.',
+                        default=None, required=False, nargs='*')
     parser.add_argument('-l', '--cutting-length-ratio-with-base', type=float,
                         help='Keys in the float as the ratio to compare the length of "Base"',
                         default=[], required=False, nargs='+')
@@ -73,6 +75,7 @@ def main():
 
     __DIR_SUFFIX__ = ".lproj"
     __FILE_SUFFIX__ = ".strings"
+    __FILE_INTENT_SUFFIX__ = ".intentdefinition"
     __FILE_DICT_SUFFIX__ = ".stringsdict"
     __RESOURCE_PATH__ = expanduser(args['target path'])
     __BASE_LANG__ = args['base_lang_name']
@@ -81,6 +84,7 @@ def main():
     __KEYS_FORCE_TRANSLATE_ALL__ = ('--force-translate-keys' in sys.argv or '-f' in sys.argv) and not __KEYS_FORCE_TRANSLATE__
     __KEYS_FOLLOW_BASE__ = args['following_base_keys']
     __CUTTING_LENGTH_RATIO__ = (args['cutting_length_ratio_with_base'] or [0])[0]
+    __FOLLOWING_ALL_KEYS_IFNOT_EXIST__ = args['following_base_if_not_exists'] is not None
 
     __IGNORE_COMMENTS__ = args['ignore_comments'] is not None
     __IGNORE_UNVERIFIED_RESULTS__ = args['ignore_unverified_results'] is not None
@@ -101,7 +105,7 @@ def main():
     if __INCLUDE_SECONDARY_LANGUAGES__:
         __lang_codes += strlocale.secondary_supporting_xcode_lang_codes()
 
-    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locales())
+    __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locale_codes())
     __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
     print(Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)),
           Style.RESET_ALL)
@@ -126,9 +130,6 @@ def main():
     print(Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__), Style.RESET_ALL)
 
     global_result_logs = {}
-
-    def strings_obj_from_file(file):
-        return strparser.parse_strings(filename=file)
 
     def merge_two_dicts(x, y):
         '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -171,9 +172,12 @@ def main():
             base_kc[k] = item['comment']
 
         force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
+
         adding_keys = list(
-            ((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) - set(
-                __KEYS_FOLLOW_BASE__))
+            ((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) \
+            - set(base_kv.keys() if __FOLLOWING_ALL_KEYS_IFNOT_EXIST__ else __KEYS_FOLLOW_BASE__) \
+        )
+
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
         existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
         updated_keys = []
@@ -186,12 +190,12 @@ def main():
         reversed_translated_kv = {}
         if len(adding_keys):
             print('Translating...')
-            translated_kv = dict(zip(adding_keys, strtrans.translate([base_kv[k] for k in adding_keys], lc)))
+            translated_kv = dict(zip(adding_keys, strtrans.translate_strs([base_kv[k] for k in adding_keys], lc)))
 
             if __VERIFY_TRANS_RESULTS__:
                 print('Reversing results and matching...')
                 reversed_translated_kv = dict(
-                    zip(adding_keys, strtrans.translate([translated_kv[_ak] for _ak in adding_keys], 'en')))
+                    zip(adding_keys, strtrans.translate_strs([translated_kv[_ak] for _ak in adding_keys], 'en')))
 
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
@@ -286,12 +290,12 @@ def main():
         return updated_content and (len(adding_keys) > 0 or len(updated_keys) > 0 or len(
             removing_keys) > 0), updated_content, translated_kv, target_error_lines, target_verified_items
 
-    def write_file(target_file, list_of_content):
+    def write_file(target_file, parsed_list):
         suc = False
         try:
             f = codecs.open(target_file, "w", "utf-8")
             contents = ''
-            for content in list_of_content:
+            for content in parsed_list:
                 if content['comment']:
                     contents += '/*{0}*/'.format(content['comment']) + '\n'
                 contents += '"{0}" = "{1}";'.format(content['key'], content['value']) + '\n'
@@ -318,7 +322,7 @@ def main():
         return not os.path.exists(target_file) or os.path.getsize(target_file) == 0
 
     def resolve_file_names(target_file_names):
-        return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
+        return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__) or f.endswith(__FILE_INTENT_SUFFIX__), target_file_names))
 
     base_dict = {}
     results_dict = {}
@@ -331,10 +335,26 @@ def main():
         if os.path.basename(dir) == __BASE_RESOUCE_DIR__:
             for _file in resolve_file_names(files):      
                 f = os.path.join(dir, _file)            
+
+                
                 if notexist_or_empty_file(f):
                     continue
 
-                parsed_obj = strings_obj_from_file(f)
+                parsed_obj = None
+
+                # parse .strings
+                if f.endswith(__FILE_SUFFIX__):
+                    parsed_obj = strparser.parse_strings(filename=f)
+
+                # parse .intentdefinition
+                elif f.endswith(__FILE_INTENT_SUFFIX__):
+                    print('[i] Found "{0}" in {1}. Parse ....'.format(os.path.basename(f), __BASE_RESOUCE_DIR__))
+                    parsed_obj = strparser_intentdefinition.parse_strings(f)
+                    # replace to dest extenstion .strings
+                    _file = _file.replace(__FILE_INTENT_SUFFIX__, __FILE_SUFFIX__)
+                    # write original .strings file to local
+                    write_file(os.path.join(dir, _file), parsed_obj)
+
                 if not parsed_obj:
                     continue
 

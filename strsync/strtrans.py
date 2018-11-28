@@ -1,5 +1,7 @@
-import googletrans
-from googletrans import Translator
+from google.cloud import translate
+
+# Install: https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python
+# Docs: https://googlecloudplatform.github.io/google-cloud-python/latest/translate/usage.html
 import strlocale
 import re
 
@@ -13,8 +15,10 @@ __LITERAL_REGEX__ = '''\
     (?:\.(?:\d+|\*))?                  # precision
     (?:h|l|ll|w|I|I32|I64)?            # size
     [cCdiouxXeEfgGaAnpsSZ@]            # type
-    ) |                                # OR
-    %%)                                # literal "%%"
+    )                                  # OR
+    | \$\{.+\}                         # replacement for property "%{appName}"
+    | %%                               # literal "%%"
+    )
 '''
 __LITERNAL_FORMAT_RE__ = re.compile(__LITERAL_REGEX__, flags=re.X)
 
@@ -40,6 +44,9 @@ def __strip_emoji__(data):
 
 __QUOTES_RE__ = re.compile(r"\"")
 __QUOTES_REPLACEMENT__ = "'"
+
+__encoded_apostrophe_RE__ = re.compile(r"&#39;") #  regex: "&#[0-9]{1,};"
+__encoded_apostrophe_REPLACEMENT__ = "'"
 
 __MULTIPLE_SUFFIX_RE__ = re.compile(r'(.*)(\(s\))(.*)')
 __MULTIPLE_SUFFIX_ALTER_REPLACEMENT__ = "s"
@@ -75,29 +82,32 @@ class __PostprocessingTransItem(object):
 
     @staticmethod
     def __postprocess_str(pretrans_item):
+        _str = pretrans_item.trans_output_text.strip()
         # remove Quotes
-        _str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, pretrans_item.trans_output_text.strip())
+        _str = __QUOTES_RE__.sub(__QUOTES_REPLACEMENT__, _str)
+        # remove Encoded Quotes
+        _str = __encoded_apostrophe_RE__.sub(__encoded_apostrophe_REPLACEMENT__, _str)
         # replace tp liternal replacement
         for i, m in enumerate(pretrans_item.matched_literal_items):
             # print m.replacement, '->', m.literal
             _str = _str.replace(m.replacement, m.literal, 1)
         return _str
 
-def supported_locales():
-    return [l for l in googletrans.LANGCODES.values()]
+def supported_locale_codes():
+    return [l[u'language'] for l in translate.Client().get_languages()]
 
-def translate(strs, to):
-    __trans = Translator()
+def translate_strs(strs, to):
+    __trans = translate.Client(target_language=to)
 
     assert len(strs) or isinstance(strs[0], str), "Input variables should be string list"
     pre_items = [item for item in __preprocessing_translate_strs(strs, to)]
 
-    translated_items = __trans.translate([item.trans_input_text for item in pre_items], dest=to)
+    translated_items = __trans.translate([item.trans_input_text for item in pre_items])
     assert len(translated_items) == len(pre_items), "the numbers of input items and translated items must be same."
 
     # map results
     for i, t in enumerate(translated_items):
-        _result = t.text
+        _result = t[u'translatedText']
         _pre_trans_item = pre_items[i]
 
         _literal_replacement_exist = bool(len(_pre_trans_item.matched_literal_items))
