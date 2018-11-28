@@ -228,3 +228,10 @@ sk
 zh-CN
   (Ignored) Hi: Hi -> 你好 -> How are you doing, Matched: 50%
 ```
+
+
+## Utilities 
+
+There are some additional scripts to help your workflow with strsync.
+
+https://github.com/metasmile/strsync/tree/master/utils
