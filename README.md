@@ -6,7 +6,8 @@
 
 
 
-<a href="https://www.jetbrains.com/opensource/"><img width="30%"  src="https://www.evernote.com/l/AEF5EOUVxAROd67OdGLaPco80G0yzfocQVkB/image.png"><a/><a href="https://www.jetbrains.com/pycharm/"><img width="30%"  src="https://www.evernote.com/l/AEEs7Vud5zZPppV0SbewK3Rl37t2gzCMvccB/image.png"></a>
+<a href="https://www.jetbrains.com/opensource/"><img width="200"  src="https://www.evernote.com/l/AEF0Agt6EXBGbZmKyluiDEC7N6VUPbPBNU0B/image.png"><a/>
+  <a href="https://www.jetbrains.com/pycharm/"><img width="200"  src="https://www.evernote.com/l/AEGfypRW_sNDDaXWNhhhDwUajGDFcX3SR90B/image.png"></a>
 
 *Supported by Jetbrains Open Source License Program*
 
