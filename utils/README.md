@@ -88,3 +88,32 @@ python ./genusrl10n.py ./userl10n/ ./myProject/Resources/Localizations/
 "Select this photo" = "Sélectionnez cette photo";
 "Write" = "Écrire";
 ```
+
+# genTxtL10N
+
+
+gentxtl10n.py lets developer can translate all the contents in plain text files.   
+
+1. Source file name format should be:
+```text
+/dir/{locale code to match with Localizable}/XXXXXX.txt
+
+e.g: /dir/en-US/file.txt
+```
+
+2. Exe
+```text
+python ./txtl10n.py ./fastlane/your_proj/en\-US/release_notes.txt
+```
+
+3. Result
+
+Translated files will be created like below.
+
+```text
+/dir/en-US/file.txt
+/dir/ja/file.txt
+/dir/zh-Hant/file.txt
+/dir/zh-Hans/file.txt
+/dir/ko/file.txt
+```
