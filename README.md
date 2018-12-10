@@ -4,10 +4,9 @@
 [![PyPI version](https://badge.fury.io/py/strsync.svg)](https://badge.fury.io/py/strsync)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-
-
-<a href="https://www.jetbrains.com/opensource/"><img width="200"  src="https://www.evernote.com/l/AEF0Agt6EXBGbZmKyluiDEC7N6VUPbPBNU0B/image.png"><a/>
-  <a href="https://www.jetbrains.com/pycharm/"><img width="200"  src="https://www.evernote.com/l/AEGfypRW_sNDDaXWNhhhDwUajGDFcX3SR90B/image.png"></a>
+<a href="https://www.jetbrains.com/?from=strsync"><img height="50"  src="https://www.evernote.com/l/AEFsE9xH3YVI9aqky2n5PW-clj7Q5KPyaJIB/image.png"><a/>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://www.jetbrains.com/opensource/"><img height="54"  src="https://www.evernote.com/l/AEF0Agt6EXBGbZmKyluiDEC7N6VUPbPBNU0B/image.png"><a/>
+  <a href="https://www.jetbrains.com/pycharm/"><img height="54"  src="https://www.evernote.com/l/AEGfypRW_sNDDaXWNhhhDwUajGDFcX3SR90B/image.png"></a>
 
 *Supported by Jetbrains Open Source License Program*
 
