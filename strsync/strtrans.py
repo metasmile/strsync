@@ -1,6 +1,6 @@
 import googletrans
 from googletrans import Translator
-import strlocale
+from . import strlocale
 import re
 
 # https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Strings/Articles/formatSpecifiers.html
@@ -52,7 +52,7 @@ class __PreTransMatchedLiteralItem(object):
 class __PostprocessingTransItem(object):
     def __init__(self, pretrans_items):
         assert len(pretrans_items), "pretrans_items is empty."
-        assert len(filter(lambda i: i is not None, [item.trans_output_text for item in pretrans_items])) == len(
+        assert len([i for i in [item.trans_output_text for item in pretrans_items] if i is not None]) == len(
             pretrans_items), "translation result 'trans_output_text' pretrans_items is empty."
 
         self.pretrans_items = pretrans_items
@@ -76,7 +76,7 @@ __trans = Translator()
 
 
 def supported_locales():
-    return [l for l in googletrans.LANGCODES.values()]
+    return [l for l in list(googletrans.LANGCODES.values())]
 
 
 def translate(strs, to):
