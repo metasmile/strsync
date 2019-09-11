@@ -93,7 +93,7 @@ def translate(strs, to):
 
         _literal_replacement_exist = bool(len(_pre_trans_item.matched_literal_items))
         _literal_replacement_contains_all = bool(
-            len(filter(lambda s: s in _result, [mitem.replacement for mitem in _pre_trans_item.matched_literal_items])))
+            len([s for s in [mitem.replacement for mitem in _pre_trans_item.matched_literal_items] if s in _result]))
 
         # if literal replacement did not contain from translator, use original text.
         if _literal_replacement_exist and not _literal_replacement_contains_all:
@@ -121,7 +121,7 @@ def __preprocessing_translate_strs(strs, dest_lang):
         prematched_literal_items = []
 
         if len(found_literals):
-            literals, indexes = zip(*[(m.group(0), (m.start(), m.end() - 1)) for m in found_literals])
+            literals, indexes = list(zip(*[(m.group(0), (m.start(), m.end() - 1)) for m in found_literals]))
             for i, l in enumerate(literals):
                 lr = __LITERNAL_REPLACEMENT__(i)
                 pretext = pretext.replace(l, lr, 1)
