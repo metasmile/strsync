@@ -6,3 +6,4 @@ fuzzywuzzy
 colorama
 babel
 unicodedata2
+python-Levenshtein
