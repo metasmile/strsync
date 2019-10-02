@@ -66,9 +66,6 @@ def main():
                         default='./', nargs='?')
     args = vars(parser.parse_args())
 
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-
     # configure arguments
     __LOCALE_XCODE_BASE_LOWERCASE__ = 'base'
 
