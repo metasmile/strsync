@@ -7,8 +7,8 @@
 """
 Apple strings file handler/compiler
 """
-from __future__ import print_function
-from __future__ import absolute_import
+
+
 import codecs, re, chardet
 
 """
@@ -59,9 +59,9 @@ def __get_content_from_file(filename, encoding):
         return f.read()
     except IOError as e:
         print("Error opening file %s with encoding %s: %s" % \
-              (filename, format_encoding, e.message))
+              (filename, format_encoding, e))
     except Exception as e:
-        print("Unhandled exception: %s" % e.message)
+        print("Unhandled exception: %s" % e)
     finally:
         f.close()
 
@@ -79,8 +79,8 @@ def parse_strings(content="", filename=None):
 
     stringset = []
     f = content
-    if f.startswith(u'\ufeff'):
-        f = f.lstrip(u'\ufeff')
+    if f.startswith('\ufeff'):
+        f = f.lstrip('\ufeff')
     # regex for finding all comments in a file
     cp = r'(?:/\*(?P<comment>(?:[^*]|(?:\*+[^*/]))*\**)\*/)'
     p = re.compile(
