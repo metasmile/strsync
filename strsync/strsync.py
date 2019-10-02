@@ -2,14 +2,15 @@
 # strsync - Automatically translate and synchronize .strings files from defined base language.
 # Copyright (c) 2015 metasmile cyrano905@gmail.com (github.com/metasmile)
 
-from __future__ import print_function
-import strparser, strlocale, strtrans
+
+from . import strparser, strlocale, strtrans
 import time, os, sys, argparse, codecs, csv
 from os.path import expanduser
 from fuzzywuzzy import fuzz
 from colorama import init
 from colorama import Fore, Back, Style
 import unicodedata2
+import imp
 
 init(autoreset=True)
 
