@@ -24,14 +24,14 @@ def resolve_file_path(file):
 
 
 def join_path_all(target_dir, target_files):
-    return map(lambda f: os.path.join(target_dir, f), target_files)
+    return [os.path.join(target_dir, f) for f in target_files]
 
 
 def rget(dictionary, key):
     items = []
     if key in dictionary:
         items.append(dictionary[key])
-    for dict_value in [value for value in dictionary.values() if isinstance(value, dict)]:
+    for dict_value in [value for value in list(dictionary.values()) if isinstance(value, dict)]:
         items += rget(dict_value, key)
     return items
 
