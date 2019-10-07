@@ -340,7 +340,7 @@ def main():
     # Exist or Create supporting lproj dirs.
     print('Check and verifiy resources ...')
     current_lproj_names = [os.path.splitext(os.path.basename(lproj_path))[0] for lproj_path in
-                           filter(lambda d: d.endswith(__DIR_SUFFIX__), [dir for dir, subdirs, files in walked])]
+                           [d for d in [dir for dir, subdirs, files in walked] if d.endswith(__DIR_SUFFIX__)]]
     notexisted_lproj_names = list(set(__XCODE_LPROJ_SUPPORTED_LOCALES__) - set(current_lproj_names))
 
     creating_lproj_dirs = [expanduser(os.path.join(__RESOURCE_PATH__, ln + __DIR_SUFFIX__)) for ln in
@@ -503,7 +503,7 @@ def main():
 
     print('')
     # WARN
-    found_warining = filter(lambda i: i or None, rget(results_dict, 'error_lines_kv'))
+    found_warining = [i for i in rget(results_dict, 'error_lines_kv') if i or None]
     if found_warining:
         print(
             Fore.YELLOW + '\n[!] WARNING: Found strings that contains the syntax error. Please confirm.' + Style.RESET_ALL)
@@ -513,7 +513,7 @@ def main():
                 for i in a[k]:
                     print(' ', i)
     # VERIFY FAILED
-    verified_results = filter(lambda i: i or None, rget(results_dict, 'verified_result'))
+    verified_results = [i for i in rget(results_dict, 'verified_result') if i or None]
     if verified_results and len(verified_results):
         print(
             Fore.GREEN + '\n[i] VERIFIED RESULTS: Matched ratio via reversed translation results. Please confirm.' + Style.RESET_ALL)
