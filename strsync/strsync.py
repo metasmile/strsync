@@ -315,7 +315,7 @@ def main():
         return not os.path.exists(target_file) or os.path.getsize(target_file) == 0
 
     def resolve_file_names(target_file_names):
-        return map(lambda f: f.decode('utf-8'), filter(lambda f: f.endswith(__FILE_SUFFIX__), target_file_names))
+        return [f for f in [f for f in target_file_names if f.endswith(__FILE_SUFFIX__)]]
 
     base_dict = {}
     results_dict = {}
