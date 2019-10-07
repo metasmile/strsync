@@ -99,7 +99,7 @@ def main():
         __lang_codes += strlocale.secondary_supporting_xcode_lang_codes()
 
     __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__ = strlocale.map_locale_codes(__lang_codes, strtrans.supported_locales())
-    __XCODE_LPROJ_SUPPORTED_LOCALES__ = __XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys()
+    __XCODE_LPROJ_SUPPORTED_LOCALES__ = list(__XCODE_LPROJ_SUPPORTED_LOCALES_MAP__.keys())
     print(Fore.WHITE + '(i) Supported numbers of locale code :', str(len(__XCODE_LPROJ_SUPPORTED_LOCALES__)),
           Style.RESET_ALL)
     print(__XCODE_LPROJ_SUPPORTED_LOCALES__)
@@ -119,13 +119,13 @@ def main():
     # read ios langs
     print(Fore.WHITE + '(i) Fetching supported locale codes for ios9 ...', Style.RESET_ALL)
     __IOS9_CODES__ = [lang_row[0] for lang_row in
-                      csv.reader(open(resolve_file_path('lc_ios9.tsv'), 'rb'), delimiter='\t')]
+                      csv.reader(open(resolve_file_path('lc_ios9.tsv'), 'rt'), delimiter='\t')]
     print(Fore.WHITE + '(i) Supported numbers of locale code :', len(__IOS9_CODES__), Style.RESET_ALL)
 
     global_result_logs = {}
 
-    def strings_obj_from_file(file):
-        return strparser.parse_strings(filename=file)
+    def strings_obj_from_file(filename):
+        return strparser.parse_strings(filename)
 
     def merge_two_dicts(x, y):
         '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -167,7 +167,7 @@ def main():
             base_kv[k] = item['value']
             base_kc[k] = item['comment']
 
-        force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
+        force_adding_keys = list(base_kv.keys()) if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
         adding_keys = list(
             ((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) - set(
                 __KEYS_FOLLOW_BASE__))
@@ -183,12 +183,12 @@ def main():
         reversed_translated_kv = {}
         if len(adding_keys):
             print('Translating...')
-            translated_kv = dict(zip(adding_keys, strtrans.translate([base_kv[k] for k in adding_keys], lc)))
+            translated_kv = dict(list(zip(adding_keys, strtrans.translate([base_kv[k] for k in adding_keys], lc))))
 
             if __VERIFY_TRANS_RESULTS__:
                 print('Reversing results and matching...')
                 reversed_translated_kv = dict(
-                    zip(adding_keys, strtrans.translate([translated_kv[_ak] for _ak in adding_keys], 'en')))
+                    list(zip(adding_keys, strtrans.translate([translated_kv[_ak] for _ak in adding_keys], 'en'))))
 
                 for bk in adding_keys:
                     if bk in reversed_translated_kv:
@@ -201,7 +201,7 @@ def main():
         updated_content = []
         for item in base_content:
             k = item['key']
-            newitem = dict.fromkeys(item.keys())
+            newitem = dict.fromkeys(list(item.keys()))
             newitem['key'] = k
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
             newitem['comment'] = target_comment if __IGNORE_COMMENTS__ else target_comment or base_kc[k]
@@ -278,7 +278,7 @@ def main():
             target_verified_items = {
                 k: {'ratio': reversed_matched_kv[k]["ratio"], 'original': base_kv[k],
                     'reversed': reversed_translated_kv[k],
-                    'translated': translated_kv[k]} for k in reversed_matched_kv.keys()}
+                    'translated': translated_kv[k]} for k in list(reversed_matched_kv.keys())}
 
         return updated_content and (len(adding_keys) > 0 or len(updated_keys) > 0 or len(
             removing_keys) > 0), updated_content, translated_kv, target_error_lines, target_verified_items
@@ -446,7 +446,7 @@ def main():
 
             if added_cnt or updated_cnt or removed_cnt or error_files:
                 print(Fore.WHITE + '(i) Changed Files : Added {0}, Updated {1}, Removed {2}, Error {3}'.format(
-                    added_cnt, updated_cnt, removed_cnt, len(error_files.keys())), Style.RESET_ALL)
+                    added_cnt, updated_cnt, removed_cnt, len(list(error_files.keys()))), Style.RESET_ALL)
             else:
                 print('Nothing to translate or add.')
 
@@ -471,7 +471,7 @@ def main():
         file_skip_cnt = \
         0
 
-    for lc in results_dict.keys():
+    for lc in list(results_dict.keys()):
         result_lc = results_dict[lc]
 
         file_add_cnt += len(result_lc['added_files'])
@@ -495,9 +495,9 @@ def main():
                         t_line_cnt += 1
                         # print(key, ' = ', tfiles[f][key])
 
-    for lc in global_result_logs.keys():
+    for lc in list(global_result_logs.keys()):
         print(lc)
-        for t in global_result_logs[lc].keys():
+        for t in list(global_result_logs[lc].keys()):
             o, b = global_result_logs[lc][t]
             print(o.decode('utf-8'), ' -> ', b)
 
