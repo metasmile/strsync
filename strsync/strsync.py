@@ -65,6 +65,8 @@ def main():
                         nargs='*')
     parser.add_argument('target path', help='Target localization resource path. (root path of Base.lproj, default=./)',
                         default='./', nargs='?')
+    parser.add_argument('only for keys', help='Some specified keys for exclusive work. All operations will work for only that keys therefore other keys will be ignored. Not specified by default. (default=None)',
+                        default=None, nargs='*')
     args = vars(parser.parse_args())
 
     reload(sys)
@@ -78,6 +80,7 @@ def main():
     __FILE_INTENT_SUFFIX__ = ".intentdefinition"
     __FILE_DICT_SUFFIX__ = ".stringsdict"
     __RESOURCE_PATH__ = expanduser(args['target path'])
+    __ONLY_FOR_KEYS__ = args['only for keys']
     __BASE_LANG__ = args['base_lang_name']
     __EXCLUDING_LANGS__ = args['excluding_lang_names']
     __KEYS_FORCE_TRANSLATE__ = args['force_translate_keys']
@@ -138,7 +141,7 @@ def main():
         return z
 
     # core function
-    def insert_or_translate(target_file, lc):
+    def synchronize(target_file, lc): #add,remove, update (translate or copy from base)
         # parse target file
         target_kv = {}
         target_kc = {}
@@ -159,6 +162,10 @@ def main():
             print('(!) Syntax error - Skip')
             return False, None, None, target_error_lines
 
+        #[i] Filter with the positional arg "only for keys" for target_kv
+        if __ONLY_FOR_KEYS__:
+            target_kv = {k:target_kv[k] for k in target_kv if k in __ONLY_FOR_KEYS__}
+
         # base
         base_content = base_dict[os.path.basename(target_file)]
         base_kv = {}
@@ -170,6 +177,10 @@ def main():
                 print('(!) WARNING : Syntax error from Base -> ', k, ':', e)
             base_kv[k] = item['value']
             base_kc[k] = item['comment']
+
+        #[i] Filter with the positional arg "only for keys" for base_kv
+        if __ONLY_FOR_KEYS__:
+            base_kv = {k:base_kv[k] for k in base_kv if k in __ONLY_FOR_KEYS__}
 
         force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
 
@@ -340,25 +351,25 @@ def main():
                 if notexist_or_empty_file(f):
                     continue
 
-                parsed_obj = None
+                parsed_objs = None
 
                 # parse .strings
                 if f.endswith(__FILE_SUFFIX__):
-                    parsed_obj = strparser.parse_strings(filename=f)
+                    parsed_objs = strparser.parse_strings(filename=f)
 
                 # parse .intentdefinition
                 elif f.endswith(__FILE_INTENT_SUFFIX__):
                     print('[i] Found "{0}" in {1}. Parse ....'.format(os.path.basename(f), __BASE_RESOUCE_DIR__))
-                    parsed_obj = strparser_intentdefinition.parse_strings(f)
+                    parsed_objs = strparser_intentdefinition.parse_strings(f)
                     # replace to dest extenstion .strings
                     _file = _file.replace(__FILE_INTENT_SUFFIX__, __FILE_SUFFIX__)
                     # write original .strings file to local
-                    write_file(os.path.join(dir, _file), parsed_obj)
+                    write_file(os.path.join(dir, _file), parsed_objs)
 
-                if not parsed_obj:
+                if not parsed_objs:
                     continue
 
-                base_dict[_file] = parsed_obj
+                base_dict[_file] = parsed_objs
 
     if not base_dict:
         print('[!] Not found "{0}" in target path "{1}"'.format(__BASE_RESOUCE_DIR__, __RESOURCE_PATH__))
@@ -441,7 +452,7 @@ def main():
             for added_file in added_files:
                 print('Adding File... {0}'.format(added_file))
                 create_file(added_file)
-                u, c, t, e, m = insert_or_translate(added_file, lc)
+                u, c, t, e, m = synchronize(added_file, lc)
                 # error
                 if e:
                     error_files[added_file] = e
@@ -456,7 +467,7 @@ def main():
 
             # exist - lookup lines
             for ext_file in existing_files:
-                u, c, t, e, m = insert_or_translate(ext_file, lc)
+                u, c, t, e, m = synchronize(ext_file, lc)
                 # error
                 if e:
                     error_files[ext_file] = e
