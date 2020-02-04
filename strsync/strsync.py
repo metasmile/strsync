@@ -344,8 +344,9 @@ def main():
     # Init with Base.lproj
     for dir, subdirs, files in walked:
         if os.path.basename(dir) == __BASE_RESOUCE_DIR__:
-            for _file in resolve_file_names(files):      
-                f = os.path.join(dir, _file)            
+            for _file in resolve_file_names(files):
+                f = os.path.join(dir, _file)
+
 
                 
                 if notexist_or_empty_file(f):

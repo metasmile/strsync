@@ -64,7 +64,7 @@ usage: strsync-runner.py [-h] [-b BASE_LANG_NAME]
                          [-v [VERIFY_RESULTS [VERIFY_RESULTS ...]]]
                          [-s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]]
                          [-i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]]
-                         [target path]
+                         [target path] [only for keys [only for keys ...]]
 
 Automatically translate and synchronize .strings files from defined base
 language.
@@ -72,6 +72,9 @@ language.
 positional arguments:
   target path           Target localization resource path. (root path of
                         Base.lproj, default=./)
+  only for keys         Some specified keys for exclusive work. All operations
+                        will work for only that keys therefore other keys will
+                        be ignored. Not specified by default. (default=None)
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -120,6 +123,11 @@ $ strsync ./myapp/Resources/Intents
 Copy all items from Base language without translation.
 ```
 $ strsync ./myapp/Resources/Localizations -w
+```
+
+All operations will work for only keys "exclusive key1" "exclusive key2" "exclusive key3". Other keys will be ignored.
+```
+$ strsync ./myapp/Resources/Localizations "exclusive key1" "exclusive key2" "exclusive key3"
 ```
 
 Excluding japanese, spanish, finnish
@@ -230,7 +238,7 @@ zh-CN
 ```
 
 
-## Utilities 
+## Utilities
 
 There are some additional scripts to help your workflow with strsync.
 
