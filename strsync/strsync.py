@@ -162,10 +162,6 @@ def main():
             print('(!) Syntax error - Skip')
             return False, None, None, target_error_lines
 
-        #[i] Filter with the positional arg "only for keys" for target_kv
-        if __ONLY_FOR_KEYS__:
-            target_kv = {k:target_kv[k] for k in target_kv if k in __ONLY_FOR_KEYS__}
-
         # base
         base_content = base_dict[os.path.basename(target_file)]
         base_kv = {}
@@ -178,19 +174,20 @@ def main():
             base_kv[k] = item['value']
             base_kc[k] = item['comment']
 
-        #[i] Filter with the positional arg "only for keys" for base_kv
-        if __ONLY_FOR_KEYS__:
-            base_kv = {k:base_kv[k] for k in base_kv if k in __ONLY_FOR_KEYS__}
-
         force_adding_keys = base_kv.keys() if __KEYS_FORCE_TRANSLATE_ALL__ else __KEYS_FORCE_TRANSLATE__
-
         adding_keys = list(
             ((set(base_kv.keys()) - set(target_kv.keys())) | (set(base_kv.keys()) & set(force_adding_keys))) \
             - set(base_kv.keys() if __FOLLOWING_ALL_KEYS_IFNOT_EXIST__ else __KEYS_FOLLOW_BASE__) \
         )
-
         removing_keys = list(set(target_kv.keys()) - set(base_kv.keys()))
         existing_keys = list(set(base_kv.keys()) - (set(adding_keys) | set(removing_keys)))
+
+        # Filter if __ONLY_FOR_KEYS__ option activated
+        if __ONLY_FOR_KEYS__:
+            adding_keys = list(set(adding_keys) & set(__ONLY_FOR_KEYS__))
+            removing_keys = list(set(removing_keys) & set(__ONLY_FOR_KEYS__))
+            existing_keys = list(set(existing_keys) & set(__ONLY_FOR_KEYS__))
+
         updated_keys = []
 
         """
@@ -199,6 +196,7 @@ def main():
         translated_kv = {}
         reversed_matched_kv = {}  # {"ratio":float, "ignored":True|False}
         reversed_translated_kv = {}
+
         if len(adding_keys):
             print('Translating...')
             translated_kv = dict(zip(adding_keys, strtrans.translate_strs([base_kv[k] for k in adding_keys], lc)))
@@ -221,7 +219,9 @@ def main():
             k = item['key']
             newitem = dict.fromkeys(item.keys())
             newitem['key'] = k
+
             target_value, target_comment = target_kv.get(k), target_kc.get(k)
+            newitem['value'] = target_value or item['value']
             newitem['comment'] = target_comment if __IGNORE_COMMENTS__ else target_comment or base_kc[k]
             needs_update_comment = False if __IGNORE_COMMENTS__ else not target_comment and base_kc[k]
 
