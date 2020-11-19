@@ -1,29 +1,22 @@
-[AD] Meet our app using stringsync, Elie - Your next mobile photography
-assistant. http://elie.cam
-
 .. figure:: https://cdn.rawgit.com/metasmile/strsync/master/logo_1_3.svg
    :alt: 
 
-|Awesome| |PyPI version| |License|
+|Awesome| |PyPI version| |License: GPL v3|
 
-Automatically translate and synchronize '.strings' files from the
-defined base language.
+    
+
+*Supported by Jetbrains Open Source License Program*
+
+--------------
+
+**Automatically translate and synchronize '.strings' files from the
+defined base language**
 
 The basic concept of this python CLI tool is straightforward file name
 based one-way synchronizer. If you are running, other localized
 resources will have the same key with automatically translated strings.
 Of course, string on the key that already exists will not be modified at
 all.
-
-While the actual i18n work, my biggest desire was to just quickly fill
-many empty strings first. This tool has been made for that purpose. In a
-normal project, automatic translation is sufficient. Because They are
-always simple sentences. Yes, No, Do it, Not agree, etc.. As you know
-all translation results of this tool is just based on the Google
-Translator. Stringsync uses unofficial google ajax translation APIs. So
-no account and API key is required. And please note that, in case of
-more complex, inspections by human will be required for exact results.
-But you may save very much of your time!
 
 .. figure:: https://github.com/metasmile/strsync/blob/master/structure.png
    :alt: 
@@ -37,6 +30,21 @@ Install
 ::
 
     pip install strsync
+
+Enable Google Cloud Translation Python API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Set your account and authentication credentials up with Google's guide
+for local envirnment.
+
+https://cloud.google.com/translate/docs/reference/libraries#client-libraries-install-python
+
+If you can't use Translation feature, use '-w' option to copy all items
+from Base language.
+
+::
+
+    $ strsync ./myapp/Resources/Localizations -w
 
 Update Python SSL packages if needed
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -59,36 +67,58 @@ table <https://github.com/metasmile/strsync/blob/master/strsync/lc_ios9.tsv>`__
 
 ::
 
-    usage: strsync <target localization resource path>
+    usage: strsync-runner.py [-h] [-b BASE_LANG_NAME]
+                             [-x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]]
+                             [-f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]]
+                             [-o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]]
+                             [-w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]]
+                             [-l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]]
+                             [-c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]]
+                             [-v [VERIFY_RESULTS [VERIFY_RESULTS ...]]]
+                             [-s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]]
+                             [-i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]]
+                             [target path] [only for keys [only for keys ...]]
 
-    Automatically translate and synchronize .strings files from defined base language.
+    Automatically translate and synchronize .strings files from defined base
+    language.
 
     positional arguments:
       target path           Target localization resource path. (root path of
                             Base.lproj, default=./)
+      only for keys         Some specified keys for exclusive work. All operations
+                            will work for only that keys therefore other keys will
+                            be ignored. Not specified by default. (default=None)
 
     optional arguments:
       -h, --help            show this help message and exit
-      -b, --base-lang-name BASE_LANG_NAME
+      -b BASE_LANG_NAME, --base-lang-name BASE_LANG_NAME
                             A base(or source) localizable resource
                             name.(default='Base'), (e.g. "Base" via 'Base.lproj',
                             "en" via 'en.lproj')
-      -x, --excluding-lang-names [EXCLUDING_LANG_NAMES ...]
+      -x EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...], --excluding-lang-names EXCLUDING_LANG_NAMES [EXCLUDING_LANG_NAMES ...]
                             A localizable resource name that you want to exclude.
                             (e.g. "Base" via 'Base.lproj', "en" via 'en.lproj')
-      -f, --force-translate-keys [FORCE_TRANSLATE_KEYS ...]
+      -f [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]], --force-translate-keys [FORCE_TRANSLATE_KEYS [FORCE_TRANSLATE_KEYS ...]]
                             Keys in the strings to update and translate by force.
-      -o, --following-base-keys [FOLLOWING_BASE_KEYS ...]
-                            Keys in the strings to follow from "Base".
-      -l, --following-base-keys-if-length-longer
-                            Keys in the strings to follow from "Base"
-                            if its length longer than the length of "Base" value.
-      -c, --ignore-comments
+                            (input nothing for all keys.)
+      -o FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...], --following-base-keys FOLLOWING_BASE_KEYS [FOLLOWING_BASE_KEYS ...]
+                            Keys in the strings to follow from "Base.
+      -w [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]], --following-base-if-not-exists [FOLLOWING_BASE_IF_NOT_EXISTS [FOLLOWING_BASE_IF_NOT_EXISTS ...]]
+                            With this option, all keys will be followed up with
+                            base values if they does not exist.
+      -l CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...], --cutting-length-ratio-with-base CUTTING_LENGTH_RATIO_WITH_BASE [CUTTING_LENGTH_RATIO_WITH_BASE ...]
+                            Keys in the float as the ratio to compare the length
+                            of "Base"
+      -c [IGNORE_COMMENTS [IGNORE_COMMENTS ...]], --ignore-comments [IGNORE_COMMENTS [IGNORE_COMMENTS ...]]
                             Allows ignoring comment synchronization.
-      -v, --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
+      -v [VERIFY_RESULTS [VERIFY_RESULTS ...]], --verify-results [VERIFY_RESULTS [VERIFY_RESULTS ...]]
                             Verify translated results via reversed results
-      -i, --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
-                            Allows ignoring unverified results when appending them.
+      -s [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]], --include-secondary-languages [INCLUDE_SECONDARY_LANGUAGES [INCLUDE_SECONDARY_LANGUAGES ...]]
+                            Include Additional Secondary Languages. (+63 language
+                            codes)
+      -i [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]], --ignore-unverified-results [IGNORE_UNVERIFIED_RESULTS [IGNORE_UNVERIFIED_RESULTS ...]]
+                            Allows ignoring unverified results when appending
+                            them.
 
 Examples to use
 ~~~~~~~~~~~~~~~
@@ -96,12 +126,27 @@ Examples to use
 ::
 
     ~/Documents/myapp/myapp/Resources/Localizations$ strsync
+    ~/Documents/myapp/myapp/Resources/Intents$ strsync
 
-Define specific path you want.
+Define specific path you want. A parent path of \*.lproj(s).
 
 ::
 
     $ strsync ./myapp/Resources/Localizations
+    $ strsync ./myapp/Resources/Intents
+
+Copy all items from Base language without translation.
+
+::
+
+    $ strsync ./myapp/Resources/Localizations -w
+
+All operations will work for only keys "exclusive key1" "exclusive key2"
+"exclusive key3". Other keys will be ignored.
+
+::
+
+    $ strsync ./myapp/Resources/Localizations "exclusive key1" "exclusive key2" "exclusive key3"
 
 Excluding japanese, spanish, finnish
 
@@ -216,9 +261,16 @@ ex)
     zh-CN
       (Ignored) Hi: Hi -> 你好 -> How are you doing, Matched: 50%
 
-.. |Awesome| image:: https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg
+Utilities
+---------
+
+There are some additional scripts to help your workflow with strsync.
+
+https://github.com/metasmile/strsync/tree/master/utils
+
+.. |Awesome| image:: https://img.shields.io/badge/Awesome-iOS-red.svg
    :target: https://github.com/vsouza/awesome-ios#localization
 .. |PyPI version| image:: https://badge.fury.io/py/strsync.svg
    :target: https://badge.fury.io/py/strsync
-.. |License| image:: https://img.shields.io/pypi/l/strsync.svg
-   :target: http://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat
+.. |License: GPL v3| image:: https://img.shields.io/badge/License-GPL%20v3-blue.svg
+   :target: https://www.gnu.org/licenses/gpl-3.0
